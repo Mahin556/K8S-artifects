@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx1
+  labels:
+    app: demo
+    type: frontend
+spec:
+  containers:
+  - name: nginx-con1
+    image: nginx:11
+    ports:
+      - containerPort: 80
