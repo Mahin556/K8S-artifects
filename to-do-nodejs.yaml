@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: to-do-nodejs-deployment
+  labels:
+    app: to-do-nodejs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: to-do-nodejs
+  template:
+    metadata:
+      labels:
+        app: to-do-nodejs
+    spec:
+      containers:
+      - name: to-do
+        image: mahinraza556/to-do-nodejs
+        ports:
+        - containerPort: 8000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: to-do-nodejs
+  labels:
+    app: to-do-nodejs
+spec:
+  type: ClusterIP
+  ports:
+  - name: app
+    port: 80
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: to-do-nodejs
