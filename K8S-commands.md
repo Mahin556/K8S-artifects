@@ -22,6 +22,7 @@ kubectl create deploy nginx-deploy  --image=nginx
 kubectl create deploy nginx-deploy  --image=nginx --port=<container_port>
 kubectl create deploy nginx-deploy  --image=nginx -n <namespace>
 kubectl create deploy nginx-deploy  --image=nginx --dry-run=client -o yaml > deploy.yaml
+kubectl create deployment nginx --image nginx:latest --replicas 3
 kubectl create ns <namespace_name>
 kubectl apply -f <manifest_file> ---> Create + Update Resource
 kubectl apply -f <manifest_file> -n <namespace>
@@ -54,6 +55,7 @@ kubectl run <pod_name> --image=<image_name> -n <namespace>
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml > pod.yaml
 Kubectl run pod_name --image=image_name --labels key=value,key=value...
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml --dry-run=client > pod.yaml
+
 ```
 
 ### Kubectl taint
@@ -212,4 +214,10 @@ kubectl config use-context my-cluster-name
 kubectl config set-cluster my-cluster-name                
 # Set a cluster entry in the kubeconfig
 
+```
+
+### Port forwarding
+```
+kubectl port-forward service/nginx 80:80 --address 192.168.29.101
+kubectl port-forward service/nginx 80:80
 ```
