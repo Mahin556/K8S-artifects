@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx
+      image: busybox
+      command:
+        - /bin/sh
+        - -c
+        - 'echo "$FIRSTNAME $LASTNAME"; sleep 360'
+      envFrom:
+      - configMapRef:
+          name: demo-cm
+      - configMapRef:
+          name: my-config
+
+        
+          

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-app
+  labels:
+    app: nginx-new
+spec:
+  type: NodePort
+  ports:
+  - nodePort: 30003
+    port: 80
+    targetPort: 80
+  selector:
+    app: nginx-new
+

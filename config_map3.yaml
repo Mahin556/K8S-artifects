@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  key: |
+    AGE=22
+    GENDER=male
+kind: ConfigMap
+metadata:
+  name: my-config
+
+# kubectl create configmap my-config --from-file=key=./env --dry-run=client -o yaml > config_map3.yaml

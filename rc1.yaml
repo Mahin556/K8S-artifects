@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: nginx-rc
+  labels:
+    ENV: prod
+spec:
+  replicas: 2
+  selector:
+    ENV: prod
+  template:
+    metadata:
+      name: nginx-pod
+      labels:
+        ENV: prod
+    spec:
+      containers:
+        - name: nginx-con
+          image: nginx
+          ports:
+          - containerPort: 80
+
