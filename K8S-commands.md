@@ -29,7 +29,19 @@ kubectl apply -f <manifest_file> -o json > pod.json
 ### Kubectl expose
 ```
 kubectl expose deploy <deploy_name> --type=NodePort --port=80
+kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80
+kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80 --target-port=80 ---> not select nodeport port, 
 ```
+
+### Kubectl create service
+```
+kubectl create service nodeport --tcp=8080:80 --node-port ---> dedicated to node port, can control nodeport port value, not have option to select the pods using selector
+```
+### Kubectl set
+```
+kubectl set selector service <service_name> <key>=<name>
+```
+
 
 ### Kubectl run
 ```
@@ -63,6 +75,10 @@ kubectl get all
 kubectl get all -A/--all-namespaces
 kubectl get all -n <namespace>
 kubectl get svc
+kubectl get pods --watch/-w
+kubectl get ep/endpoint 
+kubectl get pods -v=1-9 ---> verbose info of api call
+kubectl get svc -v=1-9
 ```
 
 ### Kubectl delete
@@ -85,6 +101,7 @@ kubectl describe deploy <deploy_name>
 kubectl describe rc <rc_name>
 kubectl describe rs <rs_name>
 kubectl describe ns <ns_name>
+kubectl describe svc <svc_name>
 kubectl describe node <node_name>
 kubectl describe pods -l key=value
 ```
@@ -92,6 +109,7 @@ kubectl describe pods -l key=value
 ### Kubectl edit
 ```
 kuebctl edit pod <pod_name> ---> To change pod config at run time
+kuebctl edit svc <svc_name>
 ```
 
 ### Kubectl exec 
