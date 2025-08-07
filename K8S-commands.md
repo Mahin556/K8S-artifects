@@ -34,6 +34,7 @@ kubectl get deploy -o wide
 kubectl get nodes -o wide
 kubectl get pods <pods_name>... -o wide
 kubectl get pods <pods_name> --show-labels
+kubectl get nodes --kubeconfig ~/.kube/admin.conf
 ```
 
 ### Kubectl describe
