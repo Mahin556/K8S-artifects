@@ -19,9 +19,12 @@ kubectl explain service
 ```
 kubectl create -f <manifest_file> ---> Create Resource
 kubectl create deploy nginx-deploy  --image=nginx
+kubectl create deploy nginx-deploy  --image=nginx --port=<container_port>
+kubectl create deploy nginx-deploy  --image=nginx -n <namespace>
 kubectl create deploy nginx-deploy  --image=nginx --dry-run=client -o yaml > deploy.yaml
 kubectl create ns <namespace_name>
 kubectl apply -f <manifest_file> ---> Create + Update Resource
+kubectl apply -f <manifest_file> -n <namespace>
 kubectl apply -f <manifest_file> -o yaml > pod.yaml
 kubectl apply -f <manifest_file> -o json > pod.json
 ```
@@ -31,6 +34,7 @@ kubectl apply -f <manifest_file> -o json > pod.json
 kubectl expose deploy <deploy_name> --type=NodePort --port=80
 kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80
 kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80 --target-port=80 ---> not select nodeport port, 
+kubectl expose deploy <deploy_name> --name=<svc_name> --port=<port> -n <namespace>
 ```
 
 ### Kubectl create service
@@ -52,6 +56,13 @@ Kubectl run pod_name --image=image_name --labels key=value,key=value...
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml --dry-run=client > pod.yaml
 ```
 
+### Kubectl taint
+```
+kubectl taint nodes <node_name> GPU=true:NoSchedule
+kubectl taint nodes <node_name> GPU=true:NoSchedule- ---> To remove the taint
+# We can't add toleration from the CLI
+```
+
 ### Kubectl get command
 ```
 kubectl get pods/po
@@ -62,6 +73,8 @@ kubectl get pods/po <pod_name> -o json
 kubectl get deployment/deploy
 kubectl get replicaset/rs
 kubectl get daemonset/ds
+kubectl get daemonset/ds -n kube-system
+kubectl get daemonset/ds -A
 kubectl get rc
 kubectl get namespaces/ns
 kubectl get pods -o wide
@@ -73,7 +86,9 @@ kubectl get pods <pods_name> -l key=value ---> selector
 kubectl get nodes --kubeconfig ~/.kube/admin.conf
 kubectl get all
 kubectl get all -A/--all-namespaces
-kubectl get all -n <namespace>
+kubectl get all -A/--all-namespaces -o wide
+kubectl get all -n <namespace> / --namespace <namespace>
+kubectl get all -n default
 kubectl get svc
 kubectl get pods --watch/-w
 kubectl get ep/endpoint 
@@ -103,6 +118,7 @@ kubectl describe rs <rs_name>
 kubectl describe ns <ns_name>
 kubectl describe svc <svc_name>
 kubectl describe node <node_name>
+kubectl describe node master | grep -i taint
 kubectl describe pods -l key=value
 ```
 
@@ -143,6 +159,7 @@ Kubectl label pods pod_name key=value,key=value...
 ```
 kubectl scale --replicas=4 rs/nginx
 kubectl scale --replicas=4 deploy/nginx
+kubectl scale --replicas=4 deploy/nginx -n <namespace>
 kubectl scale --current-replicas=2 --replicas=4 deploy/nginx
 ```
 
@@ -161,10 +178,38 @@ kubectl rollout undo deploy nginx ---> allow go rollback to previous version of 
 ### Kubectl logs
 ```
 kubectl logs <pod_name>
+kubectl logs pod <pod_name> -c init-container
 kubectl logs deployment/nginx --all-pods=true
 kubectl logs job/hello
 ```
 
+### kubectl top
+```
+kubectl top pods
+kubectl top pod <pod_name>
+```
 
+### Kubectl config
+```
+kubectl config view -o jsonpath='{.users[].name}'         
+# Display the first user
 
+kubectl config view -o jsonpath='{.users[*].name}'        
+# Get a list of all users
 
+kubectl config get-contexts                               
+# Display list of contexts
+
+kubectl config get-contexts -o name                       
+# Get all context names
+
+kubectl config current-context                            
+# Display the current context
+
+kubectl config use-context my-cluster-name                
+# Set the default context to 'my-cluster-name'
+
+kubectl config set-cluster my-cluster-name                
+# Set a cluster entry in the kubeconfig
+
+```
