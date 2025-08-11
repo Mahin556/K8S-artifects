@@ -30,6 +30,11 @@ kubectl apply -f <manifest_file> -o yaml > pod.yaml
 kubectl apply -f <manifest_file> -o json > pod.json
 ```
 
+### Kubectl annotate
+```
+kubectl annotate deployment nginx kubernetes.io/change-cause="Pick up patch version"
+```
+
 ### Kubectl expose
 ```
 kubectl expose deploy <deploy_name> --type=NodePort --port=80
@@ -175,6 +180,8 @@ kubectl set image pod nginx nginx=nginx:1.9.1
 ```
 kubectl rollout history deploy nginx
 kubectl rollout undo deploy nginx ---> allow go rollback to previous version of application or undo changes
+kubectl rollout status deployment/nginx
+kubectl rollout undo deployment/nginx --to-revision=1
 ```
 
 ### Kubectl logs
