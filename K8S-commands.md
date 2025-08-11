@@ -13,6 +13,7 @@ kubectl explain deploy
 kubectl explain daemonsets
 kubectl explain replicaset
 kubectl explain service
+kubectl explain <resource_type> --recursive ## Show all the option available to you to create a yaml
 ```
 
 ### Kubectl create and apply
@@ -26,9 +27,23 @@ kubectl create deployment nginx --image nginx:latest --replicas 3
 kubectl create ns <namespace_name>
 kubectl apply -f <manifest_file> ---> Create + Update Resource
 kubectl apply -f <manifest_file> -n <namespace>
+kubectl apply -f <manifest_file> -n <namespace> --dry-run
+kubectl apply -f <manifest_file> -n <namespace> --server-dry-run
 kubectl apply -f <manifest_file> -o yaml > pod.yaml
 kubectl apply -f <manifest_file> -o json > pod.json
 ```
+### Connectivity
+```
+netcat -l -p <port> #To open port in container
+telnet <ip> <port>  #Check if specific server is listining on certain port or not
+```
+
+
+### Kubectl diff
+```
+kubectl diff -f <yaml>
+```
+
 
 ### Kubectl annotate
 ```
@@ -48,6 +63,7 @@ kubectl expose deploy <deploy_name> --type=NodePort --port=80
 kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80
 kubectl expose deploy <deploy_name> --name=<svc_name> --type=NodePort --port=80 --target-port=80 ---> not select nodeport port, 
 kubectl expose deploy <deploy_name> --name=<svc_name> --port=<port> -n <namespace>
+kubectl expose pod <pod_name> --name=<svc_name> --port=<port> --target-port=<port>
 ```
 
 ### Kubectl create service
@@ -120,6 +136,8 @@ kubectl delete rs <rs_name>....
 kubectl delete ns <ns_name>....
 kubectl delete pods <pod1_name> <pod2_name> -n <namespace>
 kubectl delete pods -l key=value
+kubectl delete pods --all
+kubectl delete rc <rc_name> --cascade=false #only delete rc and pods
 ```
 
 ### Kubectl describe
