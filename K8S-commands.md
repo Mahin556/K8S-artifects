@@ -166,6 +166,7 @@ kubectl label node my-worker-node node-role.kubernetes.io/worker="<label>" ---> 
 kubectl label nodes <node-name> <label-key>=<label-value> --overwrite
 kubectl label nodes <node-name> <label-key>-
 Kubectl label pods pod_name key=value,key=value...
+kubectl label pods --all env=prod
 
 ```
 
