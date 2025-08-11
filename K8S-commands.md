@@ -35,6 +35,13 @@ kubectl apply -f <manifest_file> -o json > pod.json
 kubectl annotate deployment nginx kubernetes.io/change-cause="Pick up patch version"
 ```
 
+### Kubectl rolling-update
+```
+kubectl rolling-update old-rc new-rc --image=nginx:1.23.4
+# It does not work with ReplicaSets or Deployments.
+# The reason is that Deployments replaced the need for kubectl rolling-update, and they manage ReplicaSets internally with a built-in rolling update strategy.
+```
+
 ### Kubectl expose
 ```
 kubectl expose deploy <deploy_name> --type=NodePort --port=80
