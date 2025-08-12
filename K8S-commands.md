@@ -31,6 +31,7 @@ kubectl apply -f <manifest_file> -n <namespace> --dry-run
 kubectl apply -f <manifest_file> -n <namespace> --server-dry-run
 kubectl apply -f <manifest_file> -o yaml > pod.yaml
 kubectl apply -f <manifest_file> -o json > pod.json
+kubectl apply -f <manifest_file> --record
 ```
 ### Connectivity
 ```
