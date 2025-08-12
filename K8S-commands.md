@@ -208,7 +208,9 @@ kubectl set image pod nginx nginx=nginx:1.9.1
 kubectl rollout history deploy nginx
 kubectl rollout undo deploy nginx ---> allow go rollback to previous version of application or undo changes
 kubectl rollout status deployment/nginx
-kubectl rollout undo deployment/nginx --to-revision=1
+kubectl rollout undo deployment/nginx --to-revision=1 #rollback to specific version
+kubectl rollout pause deloyment <deploy_name>
+kubectl rollout resume deloyment <deploy_name>
 ```
 
 ### Kubectl logs
@@ -247,6 +249,8 @@ kubectl config use-context my-cluster-name
 
 kubectl config set-cluster my-cluster-name                
 # Set a cluster entry in the kubeconfig
+
+kubectl config set-context --current --namespace=test
 
 ```
 
