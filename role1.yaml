@@ -1,0 +1,12 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: demo-role
+  namespace: demo-ns
+  labels:
+    app: demo
+rules:
+  - apiGroups: ["*","","apps","rbac.authorization.k8s.io","batch"]
+    resources: ["deployment","pods"]
+    verbs: ["get","create","apply","patch","watch","delete"]
+

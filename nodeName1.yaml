@@ -11,7 +11,7 @@ spec:
       image: httpd
       ports:
         - containerPort: 80
-  nodeName: worker02.server.vm
+      nodeName: worker02.server.vm
 
 
 

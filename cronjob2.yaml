@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - >
+              echo "Backup started";
+              mkdir -p /data &&
+              mkdir -p /backup && 
+              cp -r /data /backup &&
+              echo "Backup completed";
+            volumeMounts:
+            - name: data-volume
+              mountPath: /data
+            - name: backup-volume
+              mountPath: /backup
+          volumes:
+            - name: data-volume
+              hostPath:
+                path: /data
+                type: DirectoryOrCreate
+            - name: backup-volume
+              hostPath:
+                path: /backup
+                type: DirectoryOrCreate
+          restartPolicy: OnFailure
+

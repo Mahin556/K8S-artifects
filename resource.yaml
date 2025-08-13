@@ -10,8 +10,8 @@ spec:
     args: ["--vm","1","--vm-bytes","250M","--vm-hang","1"]
     resources:
       requests:
-        memory: "150Gi"
+        memory: "150Mi"
         cpu: "100m"
       limits:
-        memory: "250Gi"
+        memory: "250Mi"
         cpu: "150m"
