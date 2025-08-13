@@ -32,6 +32,7 @@ kubectl apply -f <manifest_file> -n <namespace> --server-dry-run
 kubectl apply -f <manifest_file> -o yaml > pod.yaml
 kubectl apply -f <manifest_file> -o json > pod.json
 kubectl apply -f <manifest_file> --record
+kubectl apply -f .
 ```
 ### Connectivity
 ```
@@ -107,6 +108,9 @@ kubectl get daemonset/ds
 kubectl get daemonset/ds -n kube-system
 kubectl get daemonset/ds -A
 kubectl get rc
+kubectl get roles
+kubectl get rolesbinding
+kubectl get serviceaccount
 kubectl get namespaces/ns
 kubectl get pods -o wide
 kubectl get deploy -o wide
@@ -130,6 +134,7 @@ kubectl get svc -v=1-9
 ### Kubectl delete
 ```
 kubectl delete -f manifest.yaml
+kubectl apply -f . #to delete all the resources defined in manifest in current directory
 kubectl delete pod <pod_name>....
 kubectl delete deploy <deploy_name>
 kubectl delete rc <rc_name>....
@@ -258,4 +263,12 @@ kubectl config set-context --current --namespace=test
 ```
 kubectl port-forward service/nginx 80:80 --address 192.168.29.101
 kubectl port-forward service/nginx 80:80
+```
+
+### Kubectl auth
+```
+kubectl auth whoami
+kubectl auth can-i get pods
+kubectl auth can-i get <resource_type> -n <namespace>
+kubectl auth can-i get <resource_type> -n <namespace> --as=<user_or_ServiceAccount>
 ```
