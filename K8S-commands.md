@@ -112,11 +112,26 @@ kubectl get roles
 kubectl get rolesbinding
 kubectl get serviceaccount
 kubectl get namespaces/ns
-kubectl get pods -o wide
+
+kubectl get pods --all-namespaces
+# or
+kubectl get pods -A
+
+kubectl get pods all --all-namespaces
+
+kubectl get pods --selector tier=frontend  # --selector == -l
+kubectl get pods -l tier=frontend --show-labels
+
+
 kubectl get deploy -o wide
 kubectl get nodes -o wide
 kubectl get pods <pods_name>... -o wide
-kubectl get pods <pods_name> --show-labels
+kubectl get pod <pods_name> --show-labels
+kubectl get deployment/deploy --show-labels
+kubectl get service/svc --show-labels
+kubectl get rc --show-labels
+kubectl get rs --show-labels
+kubectl get pods --show-labels
 kubectl get pods <pods_name> -l key=value ---> selector
 kubectl get nodes --kubeconfig ~/.kube/admin.conf
 kubectl get all
@@ -142,6 +157,7 @@ kubectl delete rs <rs_name>....
 kubectl delete ns <ns_name>....
 kubectl delete pods <pod1_name> <pod2_name> -n <namespace>
 kubectl delete pods -l key=value
+kubectl delete pods,services -l key=value
 kubectl delete pods --all
 kubectl delete rc <rc_name> --cascade=false #only delete rc and pods
 ```
@@ -190,6 +206,7 @@ kubectl label node my-worker-node node-role.kubernetes.io/worker="<label>" ---> 
 kubectl label nodes <node-name> <label-key>=<label-value> --overwrite
 kubectl label nodes <node-name> <label-key>-
 Kubectl label pods pod_name key=value,key=value...
+Kubectl label deploy deploy_name key=value
 kubectl label pods --all env=prod
 
 ```
@@ -224,6 +241,9 @@ kubectl logs <pod_name>
 kubectl logs pod <pod_name> -c init-container
 kubectl logs deployment/nginx --all-pods=true
 kubectl logs job/hello
+kubectl logs -l key=value
+kubectl logs -l key=value -c my-container
+kubectl logs -l -f key=value --all-container
 ```
 
 ### kubectl top
@@ -239,6 +259,19 @@ kubectl config view -o jsonpath='{.users[].name}'
 
 kubectl config view -o jsonpath='{.users[*].name}'        
 # Get a list of all users
+
+kubectl config view -o jsonpath='{.users[?(@.name == "e2e")].user.password}'
+kubectl config view --raw -o jsonpath='{.users[?(@.name == "e2e")].user.client-certificate-data}' | base64 -d
+kubectl config set-context --current --namespace=ggckad-s2 #Permanently save a namespace for the current context
+
+## Create and use a new context with a specific user and namespace
+kubectl config set-context gce --user=cluster-admin --namespace=foo \
+  && kubectl config use-context gce   
+
+
+
+kubectl config view
+kubectl config view --raw
 
 kubectl config get-contexts                               
 # Display list of contexts
@@ -272,3 +305,124 @@ kubectl auth can-i get pods
 kubectl auth can-i get <resource_type> -n <namespace>
 kubectl auth can-i get <resource_type> -n <namespace> --as=<user_or_ServiceAccount>
 ```
+
+
+# Kubernetes Kubectl Cheat Sheet
+
+## 🔹 Pod-related Commands
+
+### Get pods by status
+```bash
+kubectl get pods --field-selector=status.phase=Running
+```
+➡️ Lists all **running pods** in the current namespace.
+
+### Get container IDs of init containers
+```bash
+kubectl get pods --all-namespaces -o jsonpath='{range .items[*].status.initContainerStatuses[*]}{.containerID}{"\n"}{end}' | cut -d/ -f3
+```
+➡️ Extracts all **container IDs** of init containers (useful for cleanup).
+
+### Delete all pods/services in a namespace
+```bash
+kubectl -n my-ns delete pod,svc --all
+```
+
+### Run a single pod
+```bash
+kubectl run nginx --image=nginx -n mynamespace
+```
+➡️ Creates an **nginx pod** in namespace `mynamespace`.
+
+### Pod metrics
+```bash
+kubectl top pod
+```
+➡️ Shows CPU/memory usage for pods.
+
+### Copy files between pod and local machine
+```bash
+kubectl cp /tmp/foo_dir my-pod:/tmp/bar_dir
+kubectl cp my-namespace/my-pod:/tmp/foo /tmp/bar
+```
+➡️ Copy files **to and from** pods.
+
+### Exec into pods
+```bash
+kubectl exec -it myapp-deploy-54987bc965-bkrzj -- printenv
+kubectl exec -it myapp-deploy-54987bc965-bkrzj -- env
+```
+➡️ Run commands inside a container (`printenv`, `env`, bash, etc.).
+
+---
+
+## 🔹 Node & Scheduling
+
+### Get taints on nodes
+```bash
+kubectl describe node <node-name>
+kubectl get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints
+kubectl get nodes <node-name> -o jsonpath='{.spec.taints}'
+```
+
+### Add taint to a node
+```bash
+kubectl taint nodes <node-name> GPU=true:NoSchedule
+```
+
+### Remove taint
+```bash
+kubectl taint nodes <node-name> key=value:NoSchedule-
+```
+
+### Get labels
+```bash
+kubectl describe node worker02 | grep -i label
+```
+
+### Remove a label
+```bash
+kubectl label node node-01 purpose-
+```
+
+---
+
+## 🔹 Autoscaling (HPA)
+
+### Create HPA
+```bash
+kubectl autoscale deployment my-deploy --cpu-percent=80 --min=1 --max=10
+kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
+```
+
+### List HPAs
+```bash
+kubectl get hpa
+kubectl get hpa -n <namespace>
+```
+
+### Edit HPA
+```bash
+kubectl edit hpa <hpa-name>
+```
+
+### Patch HPA (e.g., change replicas)
+```bash
+kubectl patch hpa <hpa-name> -p '{"spec":{"maxReplicas":15}}'
+```
+
+### Export HPA YAML
+```bash
+kubectl get hpa <hpa-name> -o yaml > hpa.yaml
+```
+
+### Check metrics-server
+```bash
+kubectl get deployment metrics-server -n kube-system
+kubectl logs deployment/metrics-server -n kube-system
+```
+
+---
+
+✅ This cheat sheet covers **pods, nodes, taints, labels, and HPA (Horizontal Pod Autoscaler)** — useful for daily Kubernetes admin and troubleshooting tasks.
+
