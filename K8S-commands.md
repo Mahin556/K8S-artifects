@@ -134,6 +134,8 @@ kubectl get rs --show-labels
 kubectl get pods --show-labels
 kubectl get pods <pods_name> -l key=value ---> selector
 kubectl get nodes --kubeconfig ~/.kube/admin.conf
+kubectl get nodes -o yaml > node.yaml
+kubectl get nodes -o yaml | grep -i cidr
 kubectl get all
 kubectl get all -A/--all-namespaces
 kubectl get all -A/--all-namespaces -o wide
