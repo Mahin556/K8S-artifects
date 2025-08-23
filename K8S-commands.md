@@ -307,7 +307,19 @@ kubectl auth can-i get pods
 kubectl auth can-i get <resource_type> -n <namespace>
 kubectl auth can-i get <resource_type> -n <namespace> --as=<user_or_ServiceAccount>
 ```
-
+### Kubectl drain
+```
+kubectl drain tomcat --ignore-daemonsets --delete-emptydir-data --force
+  --ignore-daemonsets → lets the drain continue even if DaemonSet-managed pods exist.
+  --delete-emptydir-data → deletes pods using emptyDir volumes (otherwise it refuses).
+  --force → evicts pods not backed by a controller (like bare static pods).
+  Caution: Using --force can cause data loss or downtime (especially with --delete-emptydir-data). Make sure it’s safe before running in production.
+```
+### Kube cordon/uncordon
+```
+kubectl cordon tomcat #If you just want to mark node unschedulable (without evicting pods):
+kubectl uncordon tomcat
+```
 
 # Kubernetes Kubectl Cheat Sheet
 
