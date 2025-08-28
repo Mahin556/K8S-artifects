@@ -85,6 +85,7 @@ kubectl run <pod_name> --image=<image_name> -n <namespace>
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml > pod.yaml
 Kubectl run pod_name --image=image_name --labels key=value,key=value...
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml --dry-run=client > pod.yaml
+kubectl run flask-app --image=docker.io/mahinraza556/flask-app:simple-crud-operations --port=5000
 
 ```
 
