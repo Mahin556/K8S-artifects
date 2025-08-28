@@ -86,6 +86,10 @@ kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml > pod.yam
 Kubectl run pod_name --image=image_name --labels key=value,key=value...
 kubectl run <pod_name> --image=<image_name> --labels=app=nginx -o yaml --dry-run=client > pod.yaml
 kubectl run flask-app --image=docker.io/mahinraza556/flask-app:simple-crud-operations --port=5000
+kubectl run flask-app --image=gcr.io/my-project-id/flask-app:simple-crud-operations --port=5000  #GCR
+kubectl run flask-app --image=123456789012.dkr.ecr.us-east-1.amazonaws.com/flask-app:simple-crud-operations --port=5000  #ECR
+kubectl run flask-app --image=myregistry.azurecr.io/flask-app:simple-crud-operations --port=5000   #ACR
+
 
 ```
 
@@ -437,7 +441,14 @@ kubectl get deployment metrics-server -n kube-system
 kubectl logs deployment/metrics-server -n kube-system
 ```
 
----
+### Secret for docker registry
+```
+kubectl create secret docker-registry my-registry-secret \
+  --docker-server=<registry-url> \
+  --docker-username=<username> \
+  --docker-password=<password> \
+  --docker-email=<email>
+```
 
 ✅ This cheat sheet covers **pods, nodes, taints, labels, and HPA (Horizontal Pod Autoscaler)** — useful for daily Kubernetes admin and troubleshooting tasks.
 
