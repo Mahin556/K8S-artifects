@@ -1,8 +1,10 @@
 - Manages a replicas of pod
 - Auto healing
 - Handle pod failover
-- Not run single pod instead run pod through rc,rs,deployment for handling failover.
-
+- Not run single pod instead run pod through rc,rs,deployment for handling failover or if node fail where pod is running it will allocate it on different node.
+  
+- Not support a set-based selector
+  
 ```
 apiVersion: v1
 kind: ReplicationController
