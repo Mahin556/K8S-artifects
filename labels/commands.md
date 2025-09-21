@@ -151,5 +151,20 @@ kubectl label pods foo owner=team --as admin
 kubectl label pods foo zone=us-east -s https://my-api:6443
 ```
 
+- others
+```
+kubectl label nodes <node-name> app=frontend
+
+kubectl label nodes -l node-role.kubernetes.io/worker=true app=backend
+
+kubectl get nodes --show-labels
+
+kubectl label nodes <node-name> app=database --overwrite
+
+kubectl label nodes <node-name> app-
+
+```
+
+
 ### References
 - https://kubernetes.io/docs/reference/kubectl/generated/kubectl_label/
