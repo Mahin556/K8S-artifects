@@ -9,4 +9,5 @@ kubectl api-resources             # List resources
 kubectl api-versions              # List versions
 kubectl get all -A                # All resources in all namespaces
 ```
-
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
