@@ -1,5 +1,7 @@
 - CM is the k8s control plane component that manages the desire state of k8s cluster using a set of controllers.
-- CMs run a non-terminating control-loop through which it monitor the state of the cluster
+- CMs run a non-terminating **controller-loop** through which it monitor the current state(current no of replicas) of the cluster and compare it with the desire state(desired no of replicas).
+- Automatically create and delete pod based on the desired count.
+
 - List of controllers:
     - **Deployment:** A higher-level controller for managing stateless applications, like web servers. A Deployment uses ReplicaSets to ensure a specified number of identical pods are running. It handles rolling updates and rollbacks, so you can update an application without downtime.
 

@@ -1,6 +1,6 @@
 ### Labels
 - Add, update, or remove labels on Kubernetes resources.
-- Labels are key-value pairs used to organize, filter, and select resources.
+- Labels consist of key-value pairs attached to resources, used to organize, filter, and select resources to target them.
 
 ```
 kubectl label [--overwrite] (-f FILENAME | TYPE NAME) KEY_1=VAL_1 ... KEY_N=VAL_N [--resource-version=version]
