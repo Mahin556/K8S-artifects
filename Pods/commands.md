@@ -8,3 +8,6 @@ kubectl port-forward <pod> 8080:80
 kubectl label pod <pod> team=dev
 kubectl annotate pod <pod> key=value
 ```
+
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
