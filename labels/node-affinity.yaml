@@ -30,3 +30,5 @@ spec:
                     operator: In
                     values:
                       - backend
+
+### Reference:- https://labex.io/tutorials/kubernetes-how-to-assign-and-manage-custom-labels-on-kubernetes-nodes-415736
