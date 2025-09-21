@@ -48,9 +48,9 @@ kubectl label pods -A tier=frontend
 
 - --dry-run
   Test without applying:
-    none → actually apply (default)
-    client → simulate locally
-    server → send request, no persistence
+    - none → actually apply (default)
+    - client → simulate locally
+    - server → send request, no persistence
 ```
 kubectl label pod foo team=dev --dry-run=client
 ```
