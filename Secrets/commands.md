@@ -4,3 +4,6 @@ kubectl get secrets
 kubectl describe secret db-pass
 kubectl delete secret db-pass
 ```
+
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
