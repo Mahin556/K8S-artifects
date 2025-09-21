@@ -10,3 +10,6 @@ kubectl label node <name> env=prod
 kubectl annotate node <name> key=value
 kubectl delete node <name>
 ```
+
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
