@@ -2,7 +2,7 @@
 - Auto healing
 - Handle pod failover
 - Not run single pod instead run pod through rc,rs,deployment for handling failover or if node fail where pod is running it will allocate it on different node.
-  
+- without Rc,Rs,deployment a unmanaged pod will be terminated and not gonna deploy to other node if node failed.
 - Not support a set-based selector
   
 ```
@@ -28,3 +28,4 @@ spec:
 
 ### references
 - https://www.tutorialspoint.com/kubernetes/kubernetes_replication_controller.htm
+- 
