@@ -7,3 +7,6 @@ kubectl logs --since=6h <pod>             # Last 6 hours
 kubectl logs --previous <pod>             # Previous crash logs
 kubectl logs <pod> > pod.log              # Save to file
 ```
+
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
