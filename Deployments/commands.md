@@ -9,3 +9,5 @@ kubectl set image deployment/<name> <container>=nginx:latest
 kubectl rollout undo deployment/<name>
 kubectl replace --force -f file.yaml
 ```
+### References
+- https://spacelift.io/blog/kubernetes-cheat-sheet
