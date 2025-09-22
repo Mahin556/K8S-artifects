@@ -11,6 +11,8 @@ kubectl get rc -n dev
 
 kubectl describe replicationcontroller <controller-name>
 
+kubectl delete pod <one-of-your-pod-names>
+
 kubectl create -f replication-controller.yaml
 
 kubectl replace -f replication-controller.yaml

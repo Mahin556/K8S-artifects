@@ -6,6 +6,8 @@
 - Only support equility based selector, not set-based selector
 - Resources are identified based on matching labels and their values.
 - Using labels is can also manage the existing pods with the same labels, and adjust the replica count to create accourding to it.
+- selector == pod selector
+- If a Pod managed by an RC fails, is deleted, or its node crashes, the RC will automatically create a new Pod to replace it, maintaining the desired replica count. 
 
 - ReplicationControllers do not support revisions or history.
   - They’re older K8s objects, and all you can do is update the spec (e.g., image). No rollout tracking, no annotations like revisions.
@@ -37,4 +39,4 @@ spec:
 ### references
 - https://www.tutorialspoint.com/kubernetes/kubernetes_replication_controller.htm
 - https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/
--
+- https://www.geeksforgeeks.org/devops/kubernetes-replication-controller/

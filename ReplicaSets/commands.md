@@ -1,4 +1,4 @@
-```
+```bash
 kubectl get rs
 kubectl get replicasets
 kubectl describe rs <name>

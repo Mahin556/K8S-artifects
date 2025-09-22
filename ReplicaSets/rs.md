@@ -170,5 +170,11 @@ spec:
 
 ```
 
+- For the template's restart policy field, `.spec.template.spec.restartPolicy`, the only allowed value is `Always`, which is the default.
+
+
+
 ### References
 - https://learncloudnative.com/blog/2021-07-10-pods-replicasets
+- https://www.tutorialspoint.com/kubernetes/kubernetes_replica_sets.htm
+- https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
