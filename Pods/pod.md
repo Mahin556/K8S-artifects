@@ -10,3 +10,6 @@ kubectl run <name of pod> --image=<name of the image from registry>
 ```
 kubectl run tomcat --image = tomcat:8.0
 ```
+
+### references
+- https://www.tutorialspoint.com/kubernetes/kubernetes_pod.htm
