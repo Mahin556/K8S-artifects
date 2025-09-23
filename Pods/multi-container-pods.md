@@ -117,3 +117,5 @@ Example:
 * Main App: serves files.
 * Sidecar: syncs/updates repo in background.
 
+### References
+- https://www.geeksforgeeks.org/devops/kubernetes-pods/
