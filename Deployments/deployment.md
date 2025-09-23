@@ -76,8 +76,20 @@ spec:
         - containerPort: 7474       # Exposed port
 ```
 
+### Deployment Status
+| Status      | Meaning                                                                      |
+| ----------- | ---------------------------------------------------------------------------- |
+| Pending     | Deployment is waiting to start or facing issues to start.                    |
+| Progressing | Deployment is updating or creating a new ReplicaSet.                         |
+| Succeeded   | Deployment completed successfully without errors.                            |
+| Failed      | Deployment failed due to some issues.                                        |
+| Unknown     | Kubernetes API cannot reach the deployment, or there is an internal problem. |
 
+```
+kubectl rollout status deployment/<deployment-name>
+```
 
 ### References:
 - https://spacelift.io/blog/kubernetes-deployment-yaml
 - https://www.tutorialspoint.com/kubernetes/kubernetes_deployments.htm
+- https://www.geeksforgeeks.org/devops/kubernetes-deployment/

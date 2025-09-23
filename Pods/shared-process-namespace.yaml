@@ -15,3 +15,8 @@ spec:
         add: ["SYS_PTRACE"] # Required for advanced debugging like strace
     stdin: true
     tty: true
+
+## ps -ef | grep [m]ain-app | awk '{print $1}'
+## lsns -p <PID>
+
+
