@@ -73,3 +73,4 @@ status: {}
 
 ### References
 - https://www.tutorialspoint.com/kubernetes/kubernetes_pod.htm
+- https://www.geeksforgeeks.org/devops/kubernetes-creating-multiple-container-in-a-pod/
