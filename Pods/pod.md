@@ -1,11 +1,21 @@
+### Containers
+- Isolated environment
+- Package an application code with it runtime, dependencies, libraries and run it in a self-contained, isolated environment.
+- Container on host run/appear as a single process, but it can have multiple process running in it(but only one process will be main other will be child).
+- Each container gets and ip, shared volume, CPU and memory resources.
+- container is created using the linux kernel feature called namespaces and control groups(cgroup).  
+
+### Pod
+- In K8S Pods are the smallest deployable unit we does not create container directly instead we create a pod and pod have container within it.
 - Abstraction over a containers
 - Run actual workload.
+- Pod can have 1 or more container within it, but only one container is main application container other container can be init or sidecar containers.
 - Containers have shared network namespace(default) and pid name space(not default).
-- All containers within that Pod share this IP address and port space, meaning they can communicate with each other using localhost
+- In k8s pod gets a unique IP not containers, all containers within that Pod share that IP address and port space, meaning they can communicate with each other using localhost.
 - 2 types of pod
   1. single container pod
   2. multi container pod
-- Pods are the smallest deployable units in Kubernetes.
+- 
   Each Pod:
     - Contains 1 or more containers (usually 1).
     - Shares network namespace (IP, port space).
