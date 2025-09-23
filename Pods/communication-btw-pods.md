@@ -54,4 +54,5 @@
 * **Different Namespace** → FQDN Service DNS
 * **Outside World** → NodePort / LoadBalancer / Ingress
 
-Would you like me to also show you a **step-by-step kubectl exercise** (create a Deployment → update it → watch Pods being replaced live)?
+### References
+- https://www.geeksforgeeks.org/devops/kubernetes-pods/
