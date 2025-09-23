@@ -56,6 +56,8 @@ kubectl debug -it <pod-name> --image=busybox
 kubectl get pods -w
 
 kubectl get events --sort-by=.metadata.creationTimestamp
+
+kubectl logs -f testpod1 -c c01
 ```
 
 ### References
