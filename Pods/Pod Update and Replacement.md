@@ -40,3 +40,5 @@ This gives **self-healing** capability.
 * **Update (rolling upgrade):** like upgrading your engine software while the car is still running.
 * **Replacement (self-healing):** like swapping a flat tire with a spare while the car keeps moving.
 
+### References
+- https://www.geeksforgeeks.org/devops/kubernetes-pods/
