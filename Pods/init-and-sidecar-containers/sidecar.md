@@ -157,3 +157,6 @@ spec:
 * **Sync sidecar** → keep content/files updated.
 * **Metrics sidecar** → expose monitoring data.
 * **Security sidecar** → TLS, scanning, secret injection.
+
+### References
+- https://www.geeksforgeeks.org/devops/kubernetes-pods/
