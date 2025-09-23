@@ -96,3 +96,5 @@ spec:
 * Great for **bootstrapping Kubernetes components** and node-level agents.
 * Appear in the cluster but are **node-bound** and **not API-driven**.
 
+### References
+- https://www.geeksforgeeks.org/devops/kubernetes-pods/
