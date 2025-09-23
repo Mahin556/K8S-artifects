@@ -51,5 +51,24 @@ kubectl run tomcat --image = tomcat:8.0
 - If a Pod crashes or a Node fails → Pod disappears.
 - controllers (higher-level objects) ensure Pods are automatically recreated and scaled.
 
+### Example
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: nginx
+  name: nginx
+spec:
+  containers:
+  - image: nginx
+    name: nginx
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+```
+
 ### References
 - https://www.tutorialspoint.com/kubernetes/kubernetes_pod.htm
