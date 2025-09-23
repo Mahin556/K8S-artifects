@@ -10,6 +10,7 @@
     - Contains 1 or more containers (usually 1).
     - Shares network namespace (IP, port space).
     - Can share storage volumes.
+    - Same lifecycle (scheduled, started, stopped together)
 - All containers within a single Pod are guaranteed to be co-located on the same worker node.
 - Containers within a Pod can share storage volumes, allowing them to have a common filesystem and exchange data seamlessly.
 - unmanaged pods(orphan pods):- not managed by any high level object
