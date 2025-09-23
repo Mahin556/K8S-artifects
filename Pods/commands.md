@@ -62,3 +62,4 @@ kubectl logs -f testpod1 -c c01
 
 ### References
 - https://spacelift.io/blog/kubernetes-cheat-sheet
+- https://www.geeksforgeeks.org/devops/kubernetes-creating-multiple-container-in-a-pod/
