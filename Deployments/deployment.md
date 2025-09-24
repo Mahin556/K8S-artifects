@@ -2,11 +2,13 @@
 
 - It is high-level k8s api resource.
 - Manage stateless application.
-- Manage desired no of replicas of pods.
+- It is a type of controller that manage desired no of replicas of pods defined in a configuration in the cluster.
 - Handle pod failover.
 - Support rolling update, rollback(if rolling update failes), Pause/resume deployments and maintain the version history.
 - Desire state stored in etcd and deployment monitor the current state(no of replicas or image:version) and makesure current state always equal to desire state.
 - For statefull application statefull sets are used for stable network indentity and persistent storage.
+- A Pod itself cannot scale — scaling is achieved by increasing the number of Pods that a Deployment manages.
+- A Deployment usually represents a single purpose (e.g., one microservice or one application component).
 - In BTS Deployment create a RS and RS manage the Replicas.
 - Deployment use the RS to manage different verison of replicas.
 - Deployments are configured using declarative YAML or JSON files.
@@ -19,6 +21,9 @@
         Gradually replaces old Pods with new Pods.
         Pros: No downtime; a few old Pods + a few new Pods always running
         Cons: Deployment takes longer
+- A deployment configuration can be of YAML or JSON format.
+
+![Alt Text](/images/deployment.png)
 
 ```yaml
 apiVersion: apps/v1        # API version: apps/v1 is the stable version for Deployment
@@ -93,3 +98,4 @@ kubectl rollout status deployment/<deployment-name>
 - https://spacelift.io/blog/kubernetes-deployment-yaml
 - https://www.tutorialspoint.com/kubernetes/kubernetes_deployments.htm
 - https://www.geeksforgeeks.org/devops/kubernetes-deployment/
+- https://devopscube.com/kubernetes-deployment-tutorial/
