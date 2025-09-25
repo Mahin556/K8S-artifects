@@ -506,3 +506,6 @@ kubectl port-forward service/myservice 8443:https
 ```bash
 kubectl port-forward --address 0.0.0.0 pod/myapi 9000:8080
 ```
+
+### References:
+- https://kubernetes.io/docs/reference/kubectl/generated/kubectl_port-forward/
