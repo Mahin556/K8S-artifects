@@ -9,6 +9,8 @@ kubectl api-resources             # List resources
 kubectl api-versions              # List versions
 kubectl get all -A                # All resources in all namespaces
 kubectl get all
+kubectl api-resources | grep -i TYPE
+kubectl delete --all -A/--all-namespaces
 ```
 ### References
 - https://spacelift.io/blog/kubernetes-cheat-sheet
