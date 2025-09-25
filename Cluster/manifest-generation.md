@@ -1,4 +1,6 @@
 
+#### [Dry-run flag](https://github.com/Mahin556/K8S-artifects/blob/main/Cluster/dry-run.md) <-- see here
+
 #### Generate Pod YAML (client-side dry-run)
 ```bash
 kubectl run mypod \
