@@ -3,7 +3,7 @@
 
 ![](https://github.com/Mahin556/K8S-artifects/blob/main/images/rs1.png)
 
-```
+```yaml
 apiVersion: extensions/v1beta1 --------------------->1
 kind: ReplicaSet --------------------------> 2
 metadata:
@@ -27,7 +27,7 @@ template:
         ports:
         - containerPort: 7474
 ```
-```
+```yaml
 apiVersion: extensions/v1beta1 --------------------->1
 kind: ReplicaSet --------------------------> 2
 metadata:
@@ -57,7 +57,7 @@ template:
 #### Equality based selector
 - Uses = or == or !=
 - Matches Pods with labels equal (or not equal) to the given value.
-```
+```yaml
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -83,7 +83,7 @@ Here:
 #### Set-based selector
 - Uses In, NotIn, Exists, or DoesNotExist.
 - Allows more expressive selection.
-```
+```yaml
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -117,7 +117,7 @@ Here:
     And env label must not be dev
 
 #### ReplicaSet with Both Equality-based & Set-based Selectors
-```
+```yaml
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
@@ -157,7 +157,7 @@ spec:
     - Since it didn’t have an ownerReference, ReplicaSet adopted it.
 - Now ReplicaSet temporarily had 6 Pods (5 existing + 1 stray), but the ReplicaSet spec says `replicas: 5`.
 - So, to reconcile desired state vs actual state, it deleted the extra Pod (your stray one).
-```
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:

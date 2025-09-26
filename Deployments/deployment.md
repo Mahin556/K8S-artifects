@@ -24,6 +24,7 @@
 - A deployment configuration can be of YAML or JSON format.
 
 ![Alt Text](/images/deployment.png)
+![Alt Text](https://github.com/Mahin556/K8S-artifects/blob/main/images/dp1.png)
 
 ```yaml
 apiVersion: apps/v1        # API version: apps/v1 is the stable version for Deployment
