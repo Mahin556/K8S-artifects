@@ -24,6 +24,9 @@ metadata:
   name: Tomcat-ReplicationController
 spec:
   replicas: 3 
+  selectors:
+    app: App
+    component: neo4j
   template:
     metadata:
       name: Tomcat-ReplicationController
@@ -38,7 +41,7 @@ spec:
         - containerPort: 7474
 ```
 
-### references
+### References
 - https://www.tutorialspoint.com/kubernetes/kubernetes_replication_controller.htm
 - https://kubernetes.io/docs/concepts/workloads/controllers/replicationcontroller/
 - https://www.geeksforgeeks.org/devops/kubernetes-replication-controller/

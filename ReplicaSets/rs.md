@@ -1,6 +1,8 @@
 - Manage the replicas of pods
 - support both equality based and set-based selector
 
+![](https://github.com/Mahin556/K8S-artifects/blob/main/images/rs1.png)
+
 ```
 apiVersion: extensions/v1beta1 --------------------->1
 kind: ReplicaSet --------------------------> 2
