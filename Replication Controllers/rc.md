@@ -15,6 +15,8 @@
 
 - ReplicationController is often abbreviated to "rc" in discussion, and as a shortcut in kubectl commands.
   
+![](https://github.com/Mahin556/K8S-artifects/blob/main/images/rc1.png)
+
 ```
 apiVersion: v1
 kind: ReplicationController
