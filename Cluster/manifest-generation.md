@@ -280,7 +280,7 @@ kubectl get deployment myapp -o yaml \
 
 - All you have to do is, start typing the Object name and it will automatically populate the options for you. 
 
-![Alt Text](https://github.com/Mahin556/K8S-artifects/tree/main/images/ks-extension-1.gif)
+![](https://github.com/Mahin556/K8S-artifects/blob/main/images/ks-extension-1.gif)
 
 ### References:
 - https://devopscube.com/create-kubernetes-yaml/
