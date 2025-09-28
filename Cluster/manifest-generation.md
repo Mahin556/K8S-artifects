@@ -1,4 +1,5 @@
 
+### Create YAML Manifest Using Kubectl Dry Run
 #### [Dry-run flag](https://github.com/Mahin556/K8S-artifects/blob/main/Cluster/dry-run.md) <-- see here
 
 #### Generate Pod YAML (client-side dry-run)
@@ -35,6 +36,29 @@ kubectl expose deployment mydeployment \
   --name=myservice \
   --type=ClusterIP \
   --dry-run=client -o yaml > service.yaml
+```
+* Create Deployment Service YAML
+```bash
+kubectl expose deployment mydeployment \
+    --type=NodePort \
+    --port=8080 \
+    --name=mydeployment-service \
+    --dry-run=client -o yaml > mydeployment-service.yaml
+```
+* Create a Pod service YAML
+```bash
+kubectl expose pod mypod \
+    --port=80 \
+    --name mypod-service \
+    --type=NodePort \
+    --dry-run=client -o yaml > mypod-service.yaml
+```
+* Create NodePort Service YAML
+```bash
+kubectl create service nodeport mypod \
+    --tcp=80:80 \
+    --node-port=30001 \
+    --dry-run=client -o yaml > mypod-service.yaml
 ```
 * Server side validation
 ```bash
@@ -85,6 +109,23 @@ kubectl create namespace mynamespace \
 ```bash
 kubectl apply -f namespace.yaml --dry-run=server
 ```
+
+### Create Job YAML
+```bash
+kubectl create job myjob \
+    --image=nginx:latest \
+    --dry-run=client -o yaml
+```
+
+### Create Cronjob YAML
+```bash
+kubectl create cj mycronjob \
+    --image=nginx:latest \
+    --schedule="* * * * *" \
+    --dry-run=client -o yaml
+```
+
+
 
 #### Single imperative command to generate a Pod YAML manifest with everything
 ```bash
@@ -227,3 +268,19 @@ kubectl get deployment myapp -o yaml \
   | yq eval 'del(.metadata.uid, .metadata.creationTimestamp, .metadata.resourceVersion, .status)' - \
   > deployment-clean.yaml
 ```
+### Generating YAML Manifest in VS Code
+- [Use Kubernetes Extension](https://code.visualstudio.com/docs/azure/kubernetes?ref=devopscube.com)
+- Using it we can generate manifest for most of the kubernetes objects:
+  - Pod
+  - Deployment
+  - StatefulSets 
+  - ReplicationSet
+  - Persistent Volumes(PVs)
+  - Persistent Volume claims(PVCs), etc.
+
+- All you have to do is, start typing the Object name and it will automatically populate the options for you. 
+
+![Alt Text](https://github.com/Mahin556/K8S-artifects/tree/main/images/ks-extension-1.gif)
+
+### References:
+- https://devopscube.com/create-kubernetes-yaml/

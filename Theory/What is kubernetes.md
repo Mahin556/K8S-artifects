@@ -1,0 +1,8 @@
+- Open source
+- Container Orchestrating software platform
+- Used in modern application deployment and management.
+- Nodes --> Cluster
+- HA
+- Automatic scaling
+- Update with zero-downtime
+- Fault tolerant

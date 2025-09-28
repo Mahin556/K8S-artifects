@@ -97,6 +97,16 @@ spec:
         - name: myapp
           image: myapp:v2
 ```
+
+## ✅ When to Use `Recreate` Strategy
+
+* **Development & Testing**: Fast restarts matter more than availability.
+* **Incompatible Versions**: Old and new Pods can’t run together (e.g., schema migrations, incompatible protocols).
+* **Resource Constraints**: Not enough CPU/memory to run old and new simultaneously.
+* **Simple Needs**: No need for blue/green, canary, or rolling strategies.
+* **Planned Maintenance**: Users accept downtime during scheduled updates.
+---
+
 ### References
 - https://devopscube.com/kubernetes-deployment-tutorial/
 - https://devopscube.com/kubernetes-deployment-tutorial/
