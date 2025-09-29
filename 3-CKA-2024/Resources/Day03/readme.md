@@ -47,6 +47,7 @@ RUN npm run build
 FROM nginx:latest AS deployer
 COPY --from=installer /app/build /usr/share/nginx/html
 ```
+- The workdir on the final image is `/`
 
 - Build the docker image using the application code and Dockerfile
 
