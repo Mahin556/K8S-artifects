@@ -24,12 +24,12 @@
 
 
 
-## Challenges with the non-containerized applications
+## Challenges with the non-containerized applications(traditionally)
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/58b4c2dd-6abe-4acd-9318-c718e4133a91)
-
-
-
+- Application and there code is seperate and also deployed and configured separately, due to this there can be environment inconsistency.
+- So application can work on some environment or can't work on some environment due to this inconsistency.
+  
 ## How Docker solves the challenges
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/a8f134d8-b70e-4c99-857e-5da26e68674b)
