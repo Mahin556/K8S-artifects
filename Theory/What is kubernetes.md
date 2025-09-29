@@ -1,9 +1,4 @@
-- Backbone of microservices
 - Open source
-- backed by  CNCF(there are contributer that work on it)
-- develop by google
-- part or DNA of borg(there own tool that run there applications) from google
-- CNCF and there community build a lot of tools around kubernetes
 - Container Orchestrating software platform
 - Used in modern application deployment and management.
 - Nodes --> Cluster
@@ -11,5 +6,3 @@
 - Automatic scaling
 - Update with zero-downtime
 - Fault tolerant
-- Understanding a containers are very important to get into to K8S.
-- 
