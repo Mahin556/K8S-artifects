@@ -15,6 +15,7 @@ https://labs.play-with-k8s.com/
 ```
 https://www.docker.com/products/docker-desktop/
 ```
+Image section --> Local, Hub, Artifectory(jfrog, image, tar, npm etc)
 
 ## Get started
 - Clone a sample git repository using the below command or use your project for the demo:
