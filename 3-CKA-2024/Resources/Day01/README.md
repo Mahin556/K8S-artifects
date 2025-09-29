@@ -15,14 +15,18 @@
 ## Understanding Containers V/S Virtual Machines
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/b1bfe6ae-a1e6-4b04-8486-272d3ed380bc)
-
+- Container are light weigth alternative of VMs
+- Hyperviser allow to run multiple VM on a single physical host.
+- Container engine allow to run multiple containers on a Virtual or physical host.
 
 ## Containers V/S Virtual machines with the help of a Building and House analogy
 
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/48061343-195d-4299-8815-0856e9b5af71)
-
-
+- Container have a shared infra(H/W resources and OS), on Physical server or VM can run a multiple instance of same application.
+- Vm also used share resource but not OS, only run a single instance of application.
+- Binaries and dependencies can be used by different application inn VM but in container the binaries and dependencies can only used by the application in container.
+- Container user infra more efficiently and use optimally
 
 ## Challenges with the non-containerized applications(traditionally)
 
