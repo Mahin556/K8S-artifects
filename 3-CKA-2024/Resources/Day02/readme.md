@@ -119,3 +119,17 @@ docker logs containerid
 7. **Use `COPY` instead of `ADD`**: 
    - `COPY` is more predictable.
 ```
+```
+To reduce the size of a large Docker container image, we can:
+
+Use Multi-Stage Builds: Separate the build and runtime environments.
+Choose Minimal Base Images: Use images like alpine or scratch.
+Optimize Layer Structure: Combine commands to reduce the number of layers.
+Remove Unnecessary Files: Clean up caches and temporary files.
+Use .dockerignore: Exclude unneeded files from the build context.
+Minimize Dependencies: Only install necessary dependencies.
+Strip Binaries: Remove debug symbols and unnecessary parts from binaries.
+Externalize Configuration: Use environment variables or volumes for configuration.
+Compress and Optimize Assets: Reduce the size of images, fonts, and other assets.
+These practices help keep your Docker image as lean as possible.
+```
