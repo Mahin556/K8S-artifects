@@ -48,8 +48,12 @@
 ## A Simple Docker WorkFlow
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/444db8f4-1cbb-47b0-986f-489292f05b7c)
-
-
+- Developer write a dockerfile in organizations, devops engineer help to write a docker file.
+- Dovops engineer need to know how to write a docker file.
+- Starting point in docker workflow
+- Registry is like VCS for docker image like git&github for source code.
+- Dockerhub is the registry for public images which is desined to store the docker images.
+- Docker endorse hub.docker.io
 
 ## Docker Architecture
 
