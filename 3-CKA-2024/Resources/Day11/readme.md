@@ -4,6 +4,15 @@
 
 [![Day11/40 - Multi Container Pod Kubernetes - Sidecar vs Init Container](https://img.youtube.com/vi/yRiFq1ykBxc/sddefault.jpg)](https://youtu.be/yRiFq1ykBxc)
 
+- Support containers:
+  - init
+  - sidecar/helper(sidecar pattern)
+    - check service availablit
+    - db availablity
+    - proxy
+    - reverse proxy
+- can have a single or multiple init containers
+  
 
 ## Sample YAML used in the demo
 
@@ -31,6 +40,13 @@ spec:
     image: busybox:1.28
     command: ['sh', '-c']
     args: ['until nslookup mydb.default.svc.cluster.local; do echo waiting for mydb; sleep 2; done']
+```
+```bash
+kubectl logs <pod> -c <container>
+kubectl expose pod myapp-pod --name=myservice --port=80 --targetport=80
+kubectl expose pod myapp-pod --name=mydb --port=80 --targetport=80
+kubectl exec -it myapp-pod -- printenv
+kubectl create deploy demo --image=nginx --port=80
 ```
 
 

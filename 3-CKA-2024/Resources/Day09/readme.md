@@ -79,6 +79,9 @@ spec:
   selector:
     env: demo
 ```
+-> NodePort: Expose on nodes for external access
+-> port: Internal port that is use by internal application to communicate with service
+-> targetPort: container port
 
 
 ### LoadBalancer
@@ -102,6 +105,8 @@ spec:
   selector:
     env: demo
 ```
+* [Kind LB](https://kind.sigs.k8s.io/docs/user/loadbalancer)
+
 
 #### Sample YAML for external name
 
@@ -114,4 +119,88 @@ metadata:
 spec:
   type: ExternalName
   externalName: my.api.example.com
+```
+
+```bash
+kubectl get pods --show-labels
+kubectl apply -f service.yaml
+kubectl get svc
+kubectl get svc -l <lables>
+kubectl get endpoints
+kubectl describe svc <svc_name>
+kubectl describe endpoint <ep_name>
+kubectl api-resources | grep -i endpoints
+kubectl api-resources | grep -i svc
+kubectl expose <resource_type> <resource_name> --port=<port> --target-port=<targetPort> --type=<serviceType>
+
+```
+* Expose a Deployment externally (NodePort)
+```bash
+kubectl expose deployment my-deployment --port=80 --target-port=8080 --type=NodePort
+```
+- Service gets a random port between 30000–32767
+- You can access it using <NodeIP>:<NodePort>
+
+* Expose with a fixed NodePort
+```bash
+kubectl expose deployment my-deployment --port=80 --target-port=8080 --type=NodePort --name=my-service --overrides='
+{
+  "spec": {
+    "ports": [{
+      "port": 80,
+      "targetPort": 8080,
+      "nodePort": 31000
+    }]
+  }
+}'
+```
+
+* Expose a ReplicaSet
+```bash
+kubectl expose rs my-replicaset --port=80 --target-port=8080
+```
+
+```bash
+kubectl expose pod nginx1 --port=80 --target-port=80 --type=NodePort --name=my-service1 --dry-run=server -ojson
+{
+    "kind": "Service",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "my-service1",
+        "namespace": "default",
+        "uid": "33342579-ccd4-405b-acdb-f7144751f097",
+        "creationTimestamp": "2025-09-30T15:35:08Z",
+        "labels": {
+            "run": "nginx1"
+        }
+    },
+    "spec": {
+        "ports": [
+            {
+                "protocol": "TCP",
+                "port": 80,
+                "targetPort": 80,
+                "nodePort": 32769
+            }
+        ],
+        "selector": {
+            "run": "nginx1"
+        },
+        "clusterIP": "10.96.0.0",
+        "clusterIPs": [
+            "10.96.0.0"
+        ],
+        "type": "NodePort",
+        "sessionAffinity": "None",
+        "externalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+            "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "internalTrafficPolicy": "Cluster"
+    },
+    "status": {
+        "loadBalancer": {}
+    }
+}
 ```

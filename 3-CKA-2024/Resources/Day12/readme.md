@@ -20,7 +20,11 @@
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/bb803dc2-f9ab-4fe3-a0bb-0eacdfcf3ce0)
 
-
+- we can only schedule a control plane component on a control node.
+```bash
+kubectl get ds -n kube-system
+```
+- does not deploy at control-node because it is tainted
 
 ### Sample DS yaml used in the demo
 
@@ -46,4 +50,32 @@ spec:
   selector:
     matchLabels:
       env: demo
+```
+
+* Cron-job
+```bash
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hello
+spec:
+  schedule: "* * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: hello
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command:
+            - /bin/sh
+            - -c
+            - date; echo Hello from the Kubernetes cluster
+          restartPolicy: OnFailure
+```
+
+* Job
+```bash
+https://kubernetes.io/docs/concepts/workloads/controllers/job/
 ```
