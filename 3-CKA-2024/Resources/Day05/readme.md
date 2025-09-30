@@ -10,6 +10,19 @@
 ## Kubernetes Architecture
 
 ![image](https://github.com/piyushsachdeva/CKA-2024/assets/40286378/f15fbf28-5d18-4469-8a28-edd13678cbbf)
+- Control plane ---> Run a administrative components
+- Worker plane ---> Run a actual workload(pods)
+- Pod ---> Encapsulate a container
+- For HA we have more then one control node in control plane
+- API-server is the center of control plane any request that come to control plane rfirst reach to api-server.
+- API-server handle the communication between client-cluster and component-cluster,authenticate, authorize, admission, interact with etcd to store all the data(only api-server can communicate with etcd)
+- Scheduler--> Schedule a  workload on a best suitable node(based on resources, request,limits,taint and tolerations, affinity, nodeSelector etc)
+- Contorller manager ---> Combination of many diff controllers(monitor the state of workload on the cluster, and take action based on state)
+- etcd ---> key/value pair datastore, schemaless, store all the info about cluster, every workload, and every thing about cluster and it's conponents, state, pod, secrets, configMap etc, data first store in etcd and then controllers make state accourding to the desire state in etcd.
+- kubelet ---> node agent, receive request from the api-server and then act upon it, delete pods, create pods, responce the api-server request.
+- kube-proxy ---> enable n/w with in node, iptable rule, pop-pop communication, and communication through service.
+- kubectl ---> client, utility, go, to request to api-server
+- every component through REST-api calls, 
 
 ## Master/Control plane Node V/s Worker Node ( Node is nothing but a Virtual machine)
 
