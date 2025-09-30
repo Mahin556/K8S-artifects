@@ -1,5 +1,8 @@
 ### Please follow task.md for the Day6 assignment
 
+kind ---> Kubernetes in docker
+docker containers ---> nodes
+
 **Documentation followed in this video:**
 - Install [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - Kind cluster [docs](https://kind.sigs.k8s.io/docs/user/quick-start/)
