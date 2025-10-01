@@ -1,0 +1,17 @@
+---
+message: YAML & JSON
+demo: YAML & JSON
+
+#String literals in YAML do not need to be quoted. It is only important to quote them when they contain a value that can be mistaken for a special character.
+
+message1: > #not include new line char
+ even though
+ it looks like
+ this is a multiline message,
+ it is actually not
+
+message2: | #include new line char
+  this is a multiline message
+  and it will be preserved as is
+  including newlines
+  and leading spaces

@@ -1,0 +1,187 @@
+data_types:
+  interget: 5
+  float: 5.5
+  string: "Hello, World!"
+  boolean: true
+  list:
+    - item1
+    - item2
+    - item3
+  dictionary:
+    key1: value1
+    key2: value2
+    key3: value3
+  null_value: null
+  date: 2024-06-15
+  time: 14:30:00
+  datetime: 2024-06-15T14:30:00Z
+  binary: !!binary |
+    R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=
+  hexadecimal: 0x1A3F
+  octal: 0o755
+  scientific: 1.23e4
+  special_characters: "!@#$%^&*()_+-=[]{}|;':,.<>/?`~"
+  multi_line_string: |
+    This is a multi-line string.
+    It can span multiple lines.
+    Each line is preserved as is.
+  folded_string: >
+    This is a folded string.
+    Newlines are replaced with spaces.
+    Leading spaces are trimmed.
+  complex_structure:
+    - name: example
+      attributes:
+        - key: value
+        - key2: value2
+    - another_example:
+        nested_key: nested_value
+  anchors_and_aliases:
+    default: &default
+      name: default_name
+      age: 30
+    user1:
+      <<: *default
+      name: user1_name
+    user2:
+      <<: *default
+      name: user2_name  
+      age: 25
+  tags: !!set
+    ? tag1
+    ? tag2
+    ? tag3
+  custom_tag: !custom "This is a custom tagged string"
+  special_float: .inf
+  negative_infinity: -.inf
+  not_a_number: .nan
+  merge_key:
+    <<: 
+      key1: value1
+      key2: value2
+    key3: value3
+  ordered_map: !!omap
+    - key1: value1
+    - key2: value2
+    - key3: value3
+  pairs: !!pairs
+    - [key1, value1]
+    - [key2, value2]
+    - [key3, value3]  
+  json_compatible: !!js
+    {
+      "key1": "value1",
+      "key2": 2,
+      "key3": true,
+      "key4": null
+    }
+  yaml_1_1_compatibility: !!yaml 1.1 "This is a YAML 1.1 compatible string"
+  yaml_1_2_compatibility: !!yaml 1.2 "This is a YAML 1.2 compatible string"
+  literal_block: |
+    This is a literal block scalar.
+    Newlines are preserved.
+    Leading spaces are also preserved.
+  folded_block: >
+    This is a folded block scalar.
+    Newlines are replaced with spaces.
+    Leading spaces are trimmed.
+  complex_keys:
+    ? 
+      - key1
+      - key2
+    : value1
+    ? 
+      - key3
+      - key4
+    : value2
+  nested_complex_keys:
+    ? 
+      - 
+        - key1
+        - key2
+      - 
+        - key3
+        - key4
+    : value1
+    ? 
+      - 
+        - key5
+        - key6
+      - 
+        - key7
+        - key8
+    : value2
+
+  special_sequences: "This string contains special sequences: \n \t \r \\ \" \'"
+  unicode_string: "This is a unicode string: \u2602 \u2764 \u263A"
+  emoji_string: "This string contains emojis: 😀 🚀 🌟  🎉"
+  long_string: "This is a very long string that is intended to test the handling of long strings in YAML. It contains multiple sentences and should be properly managed by any YAML parser without issues. The quick brown fox jumps over the lazy dog. Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+  nested_lists: 
+    - 
+      - item1
+      - item2
+      - 
+        - subitem1
+        - subitem2
+    - 
+      - item3
+      - item4
+      - 
+        - subitem3
+        - subitem4
+  nested_dictionaries:
+    level1:
+      level2:
+        level3:
+          key: value
+          another_key: another_value
+      another_level2:
+        key: value2
+        another_key2: another_value2
+    another_level1:
+      level2:
+        key: value3
+        another_key: another_value3
+  mixed_nesting:
+    - name: item1
+      attributes:
+        key1: value1
+        key2: value2
+        subitems:
+          - subitem1
+          - subitem2
+    - name: item2
+      attributes:
+        key1: value3
+        key2: value4
+        subitems:
+          - subitem3
+          - subitem4
+  deep_nesting:
+    level1:
+      level2:
+        level3:
+          level4:
+            level5:
+              key: deep_value
+              another_key: another_deep_value
+      another_level2:
+        key: value2
+        another_key2: another_value2
+    another_level1:
+      level2:
+        key: value3
+        another_key: another_value3
+  anchors_in_nested_structures:
+    default: &default
+      name: default_name
+      age: 30
+      attributes:
+        key1: value1
+        key2: value2
+    user1:
+      <<: *default
+      name: user1_name
+      attributes:
+        key1: overridden_value1
+        
