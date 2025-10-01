@@ -4,47 +4,79 @@
 
 * **Init containers** are special containers in a Pod that **run before the main application containers start**.
 * They always **run to completion** before the main containers are started.
-* You can define **multiple init containers**, and they run sequentially in the order they are defined.
+* You can define **multiple init containers**, and they run sequentially(not in parallel) in the order they are defined.
+* Each init container must complete successfully before the next one starts.
 * Unlike app containers, init containers:
-
   * Always run **once**
   * Cannot be restarted unless the whole Pod restarts
   * Have their own image, filesystem, environment
+* InitContainers are defined in a `spec.initContainers` field of a Pod’s manifest.
+* 
+
+Stages:
+start ---> run ---->complete,fail
+---
+
+### 🔹 Why Init Containers are Useful(prepare)
+
+Why Use Init Containers? (Real-world Use Cases)
+
+* Dependency check, Environment setup, Secrets management, Database preparation, Cache warmup, Network wait, Security validation, Git clone / Config fetch, Separation of concerns
+  - Fetching binaries, configs, or certificates before app starts. 
+  - Running migrations or creating schema before app container connects.
+  - DB availability
+  - Cloning a Git repo
+  - Retrieving secrets from Vault, AWS Secrets Manager, Azure Key Vault, GCP Secret Manager.
+  - Pre-populating Redis, Memcached, or filesystem cache.
+  - Wait until an external API, service or database is reachable before app container starts.
+  - Running vulnerability scans, certificate checks, or policy validations.
+  - Creating directories, setting permissions, or copying files.
+  - Cloning repositories or fetching configuration data.
+  - Keep the main container image lean while init containers handle setup logic.
+
+![](https://github.com/Mahin556/K8S-artifects/blob/main/images/image-71-7.png)
 
 ---
 
-### 🔹 Why Init Containers are Useful
+### How Init Containers Work (Step by Step Lifecycle)
+* Pod creation → Kubelet sees the Pod spec has init containers.
+* Pending phase → Pod does not move to "Running" until all init containers finish.
+* Execution order → Init containers run sequentially in the order listed.
+  - Only one runs at a time.
+  - If one fails, Kubernetes retries according to the Pod’s restartPolicy.
+* Completion → Once all init containers finish, the main application containers start.
+* Restart behavior → If the Pod restarts, init containers run again before app containers.
+⚠️ Important differences:
+  - Init containers do not support probes (livenessProbe, readinessProbe, startupProbe).
+  - They share the same networking as main containers but can have different images/tools.
+  - They can mount the same volumes to share files/data with the main app container.
 
-1. **Pre-setup tasks**
-
-   * Initialize environment before main app runs.
-   * Example: Download configs, check DB availability, generate secrets.
-
-2. **Dependency checks**
-
-   * Ensure a dependency (like DB, API, or Service) is ready before app starts.
-
-3. **Security**
-
-   * Run setup tasks with elevated privileges but keep main containers restricted.
-
-4. **Separation of concerns**
-
-   * Keep the main container image lean while init containers handle setup logic.
-
+![](https://github.com/Mahin556/K8S-artifects/blob/main/images/init-container-2.gif)
 ---
 
 ### 🔹 Key Characteristics
 
-* Run **sequentially** (one after another).
-* Must **succeed** before main app containers start.
-* If an init container **fails**, Kubernetes restarts the Pod until it succeeds.
+* Sequential Execution: Init containers run one by one, and the next init container starts only if the previous one succeeds.
+* Failure Handling: If an init container fails, Kubernetes keeps restarting((with backoff delay) the pod until it succeeds.
+* No Restart After Success: Once an init container completes successfully, it never runs again (unless the pod is restarted).
+* Shared Pod Volumes & Network: Init containers can write data/config into shared volumes that the main containers can later use. They also share the same networking namespace, so they can communicate via localhost.
 * Each init container can have its own:
-
   * Image
   * Command
   * Resource limits
   * Volumes
+
+---
+
+### Example Use Cases
+* **Fetching secrets**
+  - Init container pulls secrets from a secure vault → writes to a shared volume → main app reads them.
+
+* **Waiting for dependencies**
+  - Init container pings a database or API until it’s available → only then the main app starts.
+
+* **Data preparation**
+  - Init container downloads required files or configurations → main container consumes them.
 
 ---
 
@@ -75,6 +107,10 @@ spec:
 ---
 
 ### 🔹 Example: Init Container for Dependency Check
+
+* Imagine you’re deploying a microservice that depends on a PostgreSQL database:
+* You don’t want the app container to start until the database is ready.
+* You can use an init container like this:
 
 ```yaml
 apiVersion: v1
@@ -191,3 +227,7 @@ kubectl logs myapp-pod -c <init-container-name>
 
 ✅ **In summary:**
 Init containers are powerful for **preparing environments, checking dependencies, and initializing data** before main containers run. They enforce an order of execution, improve security, and keep main app containers clean and focused.
+
+
+### References:
+- https://devopscube.com/kubernetes-init-containers/

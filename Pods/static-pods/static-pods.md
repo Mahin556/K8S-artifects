@@ -4,8 +4,10 @@
 ## **1. What Are Static Pods?**
 
 * **Normal Pods** are created by the Kubernetes API server when you apply manifests with `kubectl apply`.
-* **Static Pods** are managed **directly by the kubelet** on a node, **without the API server or controllers**.
-* They’re defined by putting a **Pod manifest file** in a special directory on a node (default: `/etc/kubernetes/manifests/`).
+* **Static Pods** are managed **directly by the kubelet daemon** on a specific node, **without the API server or controllers or scheduler**.
+* All nodes have kubelet so all nodes(control,worker) can run there static pods
+* They’re defined by putting a **Pod manifest file** in a special directory(configuration path) on a node (default: `/etc/kubernetes/manifests/`) and then kubelet deploy the manifest.
+* Kubelet watches each static Pod (and restarts it if it fails).
 
 👉 The kubelet watches this directory and ensures that each YAML file describes a Pod running on that node.
 
@@ -22,7 +24,31 @@
   ```
   <pod-name>-<node-name>
   ```
+* Even though a static pod is not managed by the API server, you can use Kubectl to list the static pod. This is because, when Kubelet deploys a static pod, it creates a mirror pod in the API server. The mirror pod doesn't run any containers itself. It's essentially a placeholder to provide visibility.
+* We can see the pods using kubectl but can't control it.
 
+* Scheduling Limitations
+  * Static pods are tied to a specific node.
+  * You cannot schedule a single static pod across multiple nodes.
+  * To run the same static pod on multiple nodes, you must place its manifest on each node manually.
+
+Note:
+- The spec of a static Pod cannot refer to other API objects (e.g., ServiceAccount, ConfigMap, Secret, etc).
+- Static pods do not support ephemeral containers.
+
+* Kubelet manages static pods from a directory defined by the `staticPodPath` parameter in its config.
+  * To check the kubelet config file:
+    ```bash
+    ps -aux | grep kubelet | grep --color=auto config.yaml
+
+    root         233  5.3  4.0 2247988 74220 ?       Ssl  15:22   3:37 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml --node-ip=172.18.0.3 --node-labels= --pod-infra-container-image=registry.k8s.io/pause:3.10.1 --provider-id=kind://docker/mycluster1/mycluster1-control-plane --runtime-cgroups=/system.slice/containerd.service
+    ```
+  * Static pod path can be verified:
+    ```bash
+    cat /var/lib/kubelet/config.yaml | grep static
+
+    staticPodPath: /etc/kubernetes/manifests
+    ```
 ---
 
 ## **3. Typical Use Cases**
@@ -39,10 +65,12 @@
 
 ---
 
-## **4. Example: Static Pod Manifest**
+## **4. Example: Creating a Static Pod**
 
 Place this file at `/etc/kubernetes/manifests/nginx-static.yaml`:
-
+```bash
+cd /etc/kubernetes/manifests/
+```
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -60,8 +88,9 @@ spec:
 
 👉 Once the file is saved:
 
-* Kubelet detects it.
-* Creates `nginx-static-<node-name>` Pod.
+* Kubelet automatically:
+  - Deploys the pod on the node.
+  - Creates a mirror pod in the API server for visibility.
 * You can verify:
 
   ```bash
@@ -89,12 +118,52 @@ spec:
 * Harder to manage at scale (need to manually place YAMLs on each node).
 
 ---
+* **Viewing Static Pods**
+  * Using crictl on the node:
+    ```bash
+    crictl pods
+    ```
+  * Using kubectl:
+    ```bash
+    kubectl get pods -o custom-columns=NAME:.metadata.name,NODE:.spec.nodeName,STATUS:.status.phase
+    ```
+  * Note: Kubelet appends the node name to the pod name:
+    ```bash
+    webserver-node01
+    ```
+    This avoids conflicts with pods of the same name on different nodes.
 
-✅ **Summary**
+---
 
-* Static Pods = defined locally, managed by kubelet, not scheduler.
-* Great for **bootstrapping Kubernetes components** and node-level agents.
-* Appear in the cluster but are **node-bound** and **not API-driven**.
+* **Kubeadm Cluster Example**
+  * All control-plane components are static pods with node name appended:
+    ```bash
+    kubectl get po -n kube-system | grep "controlplane"
+    ```
+  * Example output:
+    ```bash
+    etcd-controlplane
+    kube-apiserver-controlplane
+    kube-controller-manager-controlplane
+    kube-scheduler-controlplane
+    ```
+
+---
+
+* **Editing & Deleting Static Pods**
+  * Cannot edit/delete via kubectl.
+  * To edit: modify the manifest file in /etc/kubernetes/manifests directly. Kubelet applies the changes automatically.
+  * To delete: remove the manifest file:
+    ```bash
+    cd /etc/kubernetes/manifests
+    rm -f nginx.yaml
+    ```
+
+---
 
 ### References
 - https://www.geeksforgeeks.org/devops/kubernetes-pods/
+- https://devopscube.com/create-static-pod-kubernetes/
+- https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/ *
+- https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/ *
+- https://kubernetes.io/docs/tasks/configure-pod-container/static-pod/

@@ -261,3 +261,33 @@ spec:
 
 
 * If pod not able to schedule on node(taint prevent it), we can see it in `kubectl describe <pod>`.
+
+
+```bash
+[vagrant@vbox ~]$ kubectl describe node mycluster1-control-plane | grep -i taints
+
+Taints:             node-role.kubernetes.io/control-plane:NoSchedule
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    run: nginx  
+  name: nginx   
+spec:
+  containers:   
+  - image: nginx
+    name: nginx 
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+  nodeName: "mycluster1-control-plane"
+  tolerations:
+  - key: "node-role.kubernetes.io/control-plane"
+    operator: "Exists"
+    effect: "NoSchedule"
+
+status: {}
+```

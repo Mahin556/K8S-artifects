@@ -1,4 +1,4 @@
-```
+```bash
 kubectl run nginx --image=nginx
 
 kubectl run nginx --image=nginx --dry-run=client -oyaml > pod.yaml
@@ -58,6 +58,9 @@ kubectl get pods -w
 kubectl get events --sort-by=.metadata.creationTimestamp
 
 kubectl logs -f testpod1 -c c01
+
+yq eval '.metadata.name="nginx1"' pod.yaml | kubectl apply -f -
+
 ```
 
 ### References
