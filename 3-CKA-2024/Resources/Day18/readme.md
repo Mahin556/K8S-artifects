@@ -64,7 +64,7 @@ metadata:
 spec:
   containers:
   - name: liveness
-    image: registry.k8s.io/busybox
+    image: registry.k8s.io/busybox #for running basic linux commands
     args:
     - /bin/sh
     - -c
@@ -99,3 +99,6 @@ spec:
       initialDelaySeconds: 10
       periodSeconds: 5
 ```
+
+```bash
+

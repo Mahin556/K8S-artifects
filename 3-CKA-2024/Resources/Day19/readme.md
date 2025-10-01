@@ -13,9 +13,11 @@
 
 #### Sample command to create a config map
 
-```
-- kubectl create cm <configmapname> --from-literal=color=blue \
+```bash
+kubectl create cm <configmapname> --from-literal=color=blue \
 --from-literal=color=red
+kubectl describe cm <configmapname>
+kubectl describe pod <pod_name> #youl see a a key and value
 ```
 Where color=clue is the key and value of the config map
 

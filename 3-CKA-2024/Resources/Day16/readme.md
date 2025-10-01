@@ -4,11 +4,13 @@
 
 [![Day12/40 - Kubernetes Requests and Limits](https://img.youtube.com/vi/Q-mk6EZVX_Q/sddefault.jpg)](https://youtu.be/Q-mk6EZVX_Q)
 
+pod ---> container ---> process(req resources)
 
 # Understanding Kubernetes Requests & Limits 🚀🔧
 
 Welcome to the Kubernetes Requests & Limits guide! This document complements our video explaining managing resource allocation in your Kubernetes cluster. Let’s explore the essentials of Requests and Limits, why they matter, and how to use them effectively.
 
+Request limit make sure that pod will be crash not node if pod try to get more reosurces then allocated.
 ---
 
 ## 🏙️ What's the Deal with Requests & Limits?
@@ -18,6 +20,12 @@ Think of your Kubernetes cluster as a bustling city and pods as tenants in an ap
 - **Requests**: This is the minimum amount of resources a pod needs to operate smoothly. Think of it as a guaranteed reservation for the pod.
 - **Limits**: This is the maximum amount of resources a pod can use. It acts as a safety cap to prevent any pod from consuming more than its fair share and disrupting others.
 
+```bash
+kubectl apply -f metrics-server.yaml
+kubectl top pods
+kubectl top pods -l key=value
+kubectl top nodes
+```
 ---
 
 ## 🧐 Why are Requests & Limits Important?
@@ -43,7 +51,7 @@ metadata:
 spec:
   containers:
   - name: memory-demo-2-ctr
-    image: polinux/stress
+    image: polinux/stress #specificly build to do a stress testing
     resources:
       requests:
         memory: "50Mi"
@@ -70,6 +78,27 @@ spec:
         memory: "100Mi"
       limits:
         memory: "200Mi"
+    command: ["stress"]
+    args: ["--vm", "1", "--vm-bytes", "150M", "--vm-hang", "1"]
+```
+
+2. More then available on node
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: memory-demo
+  namespace: mem-example
+spec:
+  containers:
+  - name: memory-demo-ctr
+    image: polinux/stress
+    resources:
+      requests:
+        memory: "100Gi"
+      limits:
+        memory: "200Gi"
     command: ["stress"]
     args: ["--vm", "1", "--vm-bytes", "150M", "--vm-hang", "1"]
 ```

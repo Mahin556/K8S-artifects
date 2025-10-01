@@ -9,6 +9,7 @@
 
 Node Selectors are great for basic pod placement based on node labels. But what if you need more control over where your pods land? Enter **Node Affinity**! This feature offers advanced capabilities to fine-tune pod scheduling in your Kubernetes cluster.
 
+
 ---
 
 ## Node Affinity: The Powerhouse 🔥
@@ -23,8 +24,8 @@ Node Affinity lets you define complex rules for where your pods can be scheduled
 ---
 
 ## Properties in Node Affinity
-- requiredDuringSchedulingIgnoredDuringExecution
-- preferredDuringSchedulingIgnoredDuringExecution
+- requiredDuringSchedulingIgnoredDuringExecution(node priority)
+- preferredDuringSchedulingIgnoredDuringExecution(scheduling priority)
 
 ## Required During Scheduling, Ignored During Execution 🛠️
 
@@ -66,3 +67,43 @@ spec:
 ```
 
 
+### We can use he Taint-Toleration and affinity together
+
+```bash
+kubectl taint nodes node1 dedicated=ml:NoSchedule
+```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+
+  tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "ml"
+    effect: "NoSchedule"
+
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: disktype
+            operator: In
+            values:
+            - ssd
+    podAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - frontend
+        topologyKey: "kubernetes.io/hostname"
+```

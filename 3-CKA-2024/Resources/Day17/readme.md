@@ -13,6 +13,9 @@
 
 ![image](https://github.com/user-attachments/assets/5b68a4b1-e5de-4086-9f55-6845bd420f1b)
 
+- based on the resource utilization on the server and pod it scale the no of replicas
+- HPA and VPA
+- HPA--->nodowntime,missioncriticalapplications VPA--->downtime,notmissioncriticalapplications
 
 
 ### Sample commands used in the video:
@@ -23,8 +26,6 @@ kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while sleep 0.01; do wget -q -O- http://php-apache; done"
 
 kubectl get hpa php-apache --watch
-
-kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 ```
 
 ### Sample YAML used in the video
@@ -91,3 +92,9 @@ spec:
         type: Utilization
         averageUtilization: 50
 ```
+
+### Other type of scaling
+- KEDA(event based auto scaling)(CNCF project,third party)
+- Cron/Schedule based auto scaling.
+
+- Node based scaling comes with cloud provider managed kubernetes offering
