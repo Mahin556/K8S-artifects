@@ -102,6 +102,10 @@ For more help on how to use Docker, head to https://docs.docker.com/go/guides/
 ```
 ---
 
+```Dockerfile
+CMD, ENTRYPOINT, EXPOSE not create a layer in docker image
+```
+
 
 ## **Understanding `docker pull docker.io/library/ubuntu:latest`**
 
@@ -227,11 +231,12 @@ docker run my-first-image
 ---
 
 #### **7. Listing All Containers**
-To view all containers on your system (both running and stopped):
+To view all containers on your system (both running, Exited and stopped):
 ```bash
 docker ps -a
 ```
 - This lists the container ID, name, status, and other metadata.
+- Container are only run till the time they do something otherwise they exit
 
 ---
 
