@@ -34,7 +34,7 @@ Before Docker, the software lifecycle involved several manual and error-prone pr
 ### **Challenges with Traditional Deployment Approaches:**  
 
 1. **Dependency Management:**  
-   - Different operating systems, libraries, and configurations across environments lead to inconsistencies.  
+   - Different operating systems, libraries, and configurations across environments lead to **inconsistencies in software**.  
    - Example: Development uses **Python 3.4**, but production runs **Python 3.1**, causing compatibility issues.  
 
 2. **Inefficient Resource Usage:**  
