@@ -77,6 +77,12 @@ While both `CMD` and `ENTRYPOINT` define what commands should run in a container
 | **Example (Shell Form)**| `CMD python app.py`                                                                                   | Not supported.                                                                                    | `RUN apt-get update && apt-get install -y python3`                                                 |
 | **Chaining with CMD**   | Only one `CMD` instruction is allowed per Dockerfile (the last one overrides previous ones).          | Can be combined with `CMD` to provide default arguments (e.g., `CMD ["arg1", "arg2"]`).           | Multiple `RUN` instructions are allowed, and each creates a new layer in the image.               |
 | **When to Use**         | When you want a default command that users can override at runtime.                                   | When you want to ensure a specific command or script is always executed for the container.         | When you need to execute commands during the build phase to bake results into the image.           |
+---
+
+
+IMPORTANT POINT:
+When you use the `--entrypaint` flag in the docker run command, it effectively overrides the `ENTRYPOINT` and `CMD` instructions specified within the `Dockerfile`. The `CMD` instruction becomes irrelevant as it's designed to provide arguments for the original `ENTRYPOINT`, which is no longer in effect.
+The `-l` flag provided after `ls` is an argument specifically for the `ls` command. It instructs `ls` to display a long listing of files.
 
 ---
 
