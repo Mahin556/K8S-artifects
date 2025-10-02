@@ -100,6 +100,8 @@ CMD ["google.com"]: This defines `google.com` as the default argument for the `p
 - **Restart a container**: `docker restart <container_id>`
 - **Delete a specific container**: `docker rm <container_id>`
 - **Delete all stopped containers**: `docker container prune`
+- `docker container rm -f $(docker ps -aq)`
+- `docker container rm -f $(docker ps -q)`
 
 ### **Image Management**
 - **Dangling images**: Images that are no longer tagged or associated with any container.
