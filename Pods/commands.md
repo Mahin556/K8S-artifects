@@ -61,6 +61,8 @@ kubectl logs -f testpod1 -c c01
 
 yq eval '.metadata.name="nginx1"' pod.yaml | kubectl apply -f -
 
+
+kubectl get events
 ```
 
 ### References

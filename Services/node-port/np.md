@@ -104,6 +104,9 @@ spec:
 * **Service** load-balances across → `nginx Pods` (replicas on multiple nodes)
 * **Pod** responds → goes back through service → NodePort → User
 
+### NodePort vs ClusterIP
+- NP --> internal+external,Web apps, public services || CIP--->internal,Internal APIs, databases
+
 ---
 
 # ✅ Key Takeaways
@@ -113,3 +116,5 @@ spec:
 * **Service + kube-proxy** load-balance the traffic across all Pods, no matter which node they are running on.
 * **CoreDNS** allows Pods to communicate internally by service name (DNS).
 
+### References:
+- https://www.geeksforgeeks.org/devops/kubernetes-nodeport-service/

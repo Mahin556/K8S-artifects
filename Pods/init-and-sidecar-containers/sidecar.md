@@ -1,3 +1,15 @@
+* Additional containers that run alongside the main container in the same Pod.
+* Provide supporting services to enhance the primary container's functionality.
+* Isolation of Concerns: Dedicated to logging, monitoring, networking, or other utilities.
+* Parallel Execution: Runs concurrently with the main container.
+* Enhanced Functionality: Augments the main container without affecting its core logic.
+* Inter-Container Communication: Can communicate via shared volumes or network interfaces.
+* Shared volume
+* Shared n/w namespace
+* localhost
+
+
+
 # **Ways to Create Sidecar Containers**
 
 ## **1. Logging Sidecar (classic pattern)**
@@ -160,3 +172,5 @@ spec:
 
 ### References
 - https://www.geeksforgeeks.org/devops/kubernetes-pods/
+- https://medium.com/@manojkumar_41904/understanding-init-containers-and-sidecar-containers-in-kubernetes-ca94bec10a7b
+- https://kubernetes.io/docs/concepts/workloads/pods/sidecar-containers/ *

@@ -7,7 +7,10 @@
 * **Static Pods** are managed **directly by the kubelet daemon** on a specific node, **without the API server or controllers or scheduler**.
 * All nodes have kubelet so all nodes(control,worker) can run there static pods
 * They’re defined by putting a **Pod manifest file** in a special directory(configuration path) on a node (default: `/etc/kubernetes/manifests/`) and then kubelet deploy the manifest.
+* The kubelet periodically checks this folder, reads the YAML files, and creates the Pods using Docker (or another container runtime).
 * Kubelet watches each static Pod (and restarts it if it fails).
+* Note: Only Pods can be created this way. Resources like Deployments, ReplicaSets, or Services cannot be created via static Pod files.
+* The kubelet can create Pods both from static Pod files and API server requests.
 
 👉 The kubelet watches this directory and ensures that each YAML file describes a Pod running on that node.
 
@@ -167,3 +170,4 @@ spec:
 - https://kubernetes.io/docs/reference/config-api/kubelet-config.v1beta1/ *
 - https://kubernetes.io/docs/tasks/administer-cluster/kubelet-config-file/ *
 - https://kubernetes.io/docs/tasks/configure-pod-container/static-pod/
+- https://faun.pub/static-pods-in-kubernetes-29fe8063bf96

@@ -3,6 +3,7 @@
 * `nodeSelector` is the **simplest way to schedule Pods onto specific Nodes** in a Kubernetes cluster.
 * It works by matching **labels on Nodes** with the values specified in the Pod definition.
 * Think of it as: *“Run this Pod only on nodes that have this label.”*
+* Useful when you have specialized workloads, e.g., data processing pods needing nodes with SSDs.
 
 ---
 

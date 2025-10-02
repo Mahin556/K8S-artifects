@@ -6,7 +6,18 @@
 * Services like **ClusterIP** and **NodePort** provide internal access or fixed node-level ports, but they are not ideal for external/public access.
 * In real-world applications, we need to expose services to **users outside the cluster** (e.g., customers accessing a web app).
 * **LoadBalancer Service** is designed for this purpose.
+* A Kubernetes LoadBalancer service is a type of service that distributes network traffic across multiple pods running in a cluster. It ensures that requests are evenly routed to the available pods, providing high availability, scalability, and fault tolerance.
+* When you create a Service of type LoadBalancer in Kubernetes, the cluster interacts with the underlying cloud provider(using CCM) to provision an external load balancer. The external load balancer then receives traffic from outside the cluster and routes it to the internal ClusterIP service, which further distributes traffic to the pods.
 
+Cloud-specific load balancers:
+* Kubernetes integrates with cloud provider load balancers to automate provisioning:
+  * AWS: Elastic Load Balancer (ELB), Application Load Balancer (ALB), Network Load Balancer (NLB)
+  * Azure: Azure Load Balancer, Application Gateway
+  * GCP: Google Cloud Load Balancer
+
+Layer 4 vs Layer 7:
+* Layer 4 (Transport Layer): TCP/UDP load balancing, basic round-robin distribution. Handled by cloud load balancers or Kubernetes Service of type LoadBalancer.
+* Layer 7 (Application Layer): HTTP/HTTPS load balancing, content-based routing, URL/path routing. Requires an Ingress Controller like NGINX, HAProxy, Traefik, or Istio.
 ---
 
 ### 🔹 What LoadBalancer Does
@@ -43,6 +54,9 @@ spec:
 * **selector: app=sample-python-app** → Matches Pods with that label.
 * **port: 80** → External users access via HTTP `:80`.
 * **targetPort: 8000** → Actual port where application container listens.
+* Ideal for exposing services to the internet.
+* Behind the scenes, it creates a NodePort and ClusterIP service to route traffic internally.
+* Works best in cloud environments; for on-prem clusters, manual load balancers or MetalLB are required.
 
 ---
 
@@ -132,3 +146,6 @@ my-app-lb    10.244.1.3:8000,10.244.2.4:8000 2m
 * Makes apps **production-ready** for real users.
 
 
+### References:
+- https://www.geeksforgeeks.org/devops/kubernetes-load-balancing-service/ *
+- https://spacelift.io/blog/kubernetes-load-balancer

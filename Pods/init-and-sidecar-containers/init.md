@@ -11,7 +11,8 @@
   * Cannot be restarted unless the whole Pod restarts
   * Have their own image, filesystem, environment
 * InitContainers are defined in a `spec.initContainers` field of a Pod’s manifest.
-* 
+*  If an Init Container fails to execute successfully, the entire pod initialization fails, and the pod restarts until the Init Containers complete successfully.
+* Single Responsibility: Each Init Container focuses on a specific task.
 
 Stages:
 start ---> run ---->complete,fail
@@ -231,3 +232,5 @@ Init containers are powerful for **preparing environments, checking dependencies
 
 ### References:
 - https://devopscube.com/kubernetes-init-containers/
+- https://medium.com/@manojkumar_41904/understanding-init-containers-and-sidecar-containers-in-kubernetes-ca94bec10a7b
+- https://kubernetes.io/docs/concepts/workloads/pods/init-containers/ *
