@@ -17,6 +17,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 ```bash
 docker run -d -p 8080:80 --name my-nginx-cont nginx
 ```
+- Flask is a lightweight web framework that is used to create a web applications and Rest APIs.
 
 This command performs several key actions:
 1. **Detached Mode (`-d`)**:  
@@ -95,7 +96,7 @@ CMD ["python", "app.py"]
 | **Syntax**               | `CMD <command>`                                     | `CMD ["executable", "param1", "param2"]`           |
 | **Execution**            | Runs the command through the shell (`/bin/sh -c`).  | Runs the command directly without a shell.         |
 | **Environment Variables**| Supports shell expansion and environment variables. | Does not support shell expansion (e.g., `$VAR`).    |
-| **PID 1 Signal Handling**| The shell process becomes PID 1, so it can’t receive signals directly. | The specified executable becomes PID 1 and handles signals directly. |
+| **PID 1 Signal Handling**| The shell process becomes PID 1, so it can’t receive signals directly(application killed abruptly). | The specified executable becomes PID 1 and handles signals directly(application killed gracefully). |
 | **Complex Commands**     | Supports more complex commands, like chaining commands with `&&` & `double pipe`. | Best suited for simple commands with no shell features. |
 | **Common Use Case**      | When you need shell features, like piping or chaining commands. | When you want the command to run directly and efficiently. |
 | **Examples**             | `CMD echo "Hello World"`                           | `CMD ["echo", "Hello World"]`                      |
