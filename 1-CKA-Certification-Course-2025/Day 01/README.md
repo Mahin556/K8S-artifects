@@ -93,11 +93,16 @@ Now, let’s break down this analogy further:
 | **Scalability**     | Enables **efficient transportation** of goods in bulk, making it easy to **scale logistics operations** based on demand.         | Docker enables **scalable deployments**, supporting **microservices architectures** and **efficient resource utilization** in cloud environments. |
 | **Efficiency**      | **Standardized shipping** reduces **manual handling**, lowers **costs**, and improves **logistics efficiency**.                   | Docker **automates software deployment**, minimizes **setup errors**, and ensures **consistent performance** across different environments. |
 
+Dependeny:- docker engine, library, packages, image, configuration file etc
 ---
 
 ## **Virtual Machines (VMs) vs Docker Architecture**
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/1c.png)
+
+Hyperviser---> KVM etc
+Physical HW---> Bare Metal server, Traditional rack server
+VM+Docker architecture are most common
 
 | Feature                  | Virtual Machines (VMs)                        | Docker Containers                              |
 |--------------------------|-----------------------------------------------|-----------------------------------------------|
