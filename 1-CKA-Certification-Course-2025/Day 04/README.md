@@ -84,6 +84,8 @@ IMPORTANT POINT:
 When you use the `--entrypaint` flag in the docker run command, it effectively overrides the `ENTRYPOINT` and `CMD` instructions specified within the `Dockerfile`. The `CMD` instruction becomes irrelevant as it's designed to provide arguments for the original `ENTRYPOINT`, which is no longer in effect.
 The `-l` flag provided after `ls` is an argument specifically for the `ls` command. It instructs `ls` to display a long listing of files.
 
+CMD ["google.com"]: This defines `google.com` as the default argument for the `ping` command (if used with `ENTRYPOINT`). But since `--entrypoint` is used in the docker run command, `CMD` won't be used in this case.
+
 ---
 
 ## **Common Docker Commands**
