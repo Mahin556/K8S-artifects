@@ -13,7 +13,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 
 ## **How Were Development and Deployment Done Before Docker? Why Do We Need Docker? What Challenges Does It Solve?**
 
-![Alt text](/images/1a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/1a.png)
 
 Before Docker, the software lifecycle involved several manual and error-prone processes:
 
