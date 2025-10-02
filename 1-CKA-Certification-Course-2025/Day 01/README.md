@@ -38,14 +38,16 @@ Before Docker, the software lifecycle involved several manual and error-prone pr
    - Example: Development uses **Python 3.4**, but production runs **Python 3.1**, causing compatibility issues.  
 
 2. **Inefficient Resource Usage:**  
-   - Running multiple Virtual Machines (VMs) for different applications increases overhead.  
+   - Running multiple Virtual Machines (VMs) for different applications increases overhead.
+   - OS take space, and OS on each VM required a individual licence.
+   - VM take time to provision.
    - Hosting multiple applications on a single VM leads to resource contention.  
 
 3. **Complex & Error-Prone Deployment:**  
    - Manual configurations across development, testing, and production environments introduce human errors.  
    - Each environment may require different settings, leading to deployment failures.  
 
-4. **Lack of Isolation:**  
+4. **Lack of Isolation(application collisions):**  
    - Applications running on the same VM can **conflict** due to shared dependencies, ports, or configurations.  
    - Example: Two applications requiring **different versions of the same library** can lead to unexpected failures.  
 
