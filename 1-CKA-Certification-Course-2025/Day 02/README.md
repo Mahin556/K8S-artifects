@@ -17,7 +17,7 @@ docker version
 docker info
 ```
 ```bash
-docker --help
+controlplane:~$ docker --help
 
 Usage:  docker [OPTIONS] COMMAND
 
