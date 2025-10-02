@@ -121,6 +121,8 @@ VM+Docker architecture are most common
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/1d.png)
 
+Devepoler contact the DEVOPS engineer to check the sanctity of the Dockerfile
+Regitry used to distribute the docker image
 ---
 
 ## **Low-Level Workflow with Docker**
