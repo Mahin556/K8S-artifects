@@ -15,6 +15,15 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 - Documentation for [Kubectl Installation ](https://kubernetes.io/docs/tasks/tools/)
 - Documentation for [Kind Cluster Installation ](https://kind.sigs.k8s.io/docs/user/quick-start/)
 ---
+```bash
+controlplane:~$ kubectl version
+Client Version: v1.33.2
+Kustomize Version: v5.6.0
+Server Version: v1.33.2
+controlplane:~$ kubectl version --client
+Client Version: v1.33.2
+Kustomize Version: v5.6.0
+```
 
 # What We Did
 
