@@ -12,7 +12,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 ## Imperative vs. Declarative
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/9b.png)
-
+system --> k8s, kind, slurm
 There are two fundamental approaches to system configuration:
   1. **Imperative**: Tells the system *how* to achieve a desired state. Think of it as a step-by-step instruction manual. **Examples** below:
       - **Kubernetes**: `kubectl run my-pod --image=nginx`
@@ -24,9 +24,9 @@ There are two fundamental approaches to system configuration:
       - **General:** Ensure file A exists at location B with specific permissions.
 
 **Why Declarative is Preferred in Kubernetes**:
-  - **Idempotency**: Applying the same declarative configuration repeatedly yields the same result.
+  - **Idempotency**: Applying the same declarative configuration repeatedly yields the same result(firs confirm then take action).
   - **Simplicity**: Easier to read, write, and maintain. Focus on the **desired outcome**, not the specific steps.
-  - **Version Control**: Declarative configurations are easily versioned and tracked, making it simpler to roll back changes or understand the evolution of your system.
+  - **Version Control**: Declarative configurations are easily versioned and tracked, making it simpler to roll back changes or understand the evolution of your system. and enable collabortion.
 
 ### Imperative vs. Declarative - Table
 
@@ -89,7 +89,7 @@ In YAML, data is primarily represented as **key-value pairs**, where each `key` 
   - **Null**: A special value representing the absence of a value or "nothing," written as null in YAML.  
 
 
-- **Lists**: Ordered collections of items, represented by a series of values prefixed with hyphens (`-`).
+- **Lists**: Ordered collections of items(key value pair), represented by a series of values prefixed with hyphens (`-`).
 - **Dictionaries (Maps)**: Unordered collections of key-value pairs, allowing for nested structures.
 
 **Key-Value Pair Rules**:
@@ -97,6 +97,9 @@ In YAML, data is primarily represented as **key-value pairs**, where each `key` 
   - Use lowercase letters for keys.
   - Avoid spaces and special characters in keys.
   - **Colon (`:`)** acts as the separator between key and value.
+  - Value of the key define data type.
+  - fraction
+  - decimal
 
   **NOTE:** You can use online tools like [YAML Lint](https://www.yamllint.com/) to validate your YAML files. Additionally, you can leverage VS Code extensions to ensure you adhere to YAML syntax and best practices. These tools can help you catch errors and maintain clean, well-structured YAML configurations.
 
