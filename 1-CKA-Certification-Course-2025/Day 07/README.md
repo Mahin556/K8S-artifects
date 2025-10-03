@@ -51,34 +51,41 @@ Kubernetes operates on a master-worker architecture, where:
 
 1. **etcd**  
    - A distributed key-value store that stores all the cluster's configuration data.
+   - Must be backupd and HA.
 
 2. **API Server**  
    - The front-end for the Kubernetes control plane.  
    - Exposes the Kubernetes API, allowing users and tools to interact with the cluster.
 
 3. **Scheduler**  
-   - Assigns Pods to worker nodes based on resource availability and other constraints.
+   - Assigns Pods to worker nodes based on resource availability and other constraints(NodeSelector,Taint&Tolerations, Affinity,Resouce request and limits etc).
 
 4. **Controller Manager**  
    - Implements control loops that ensure the desired state of the cluster is maintained.  
    - Handles tasks like replication, scaling, and garbage collection.
+   - Most of the object in k8s have a corresponding controller.
+   - Deployment controller, Replication controller, Replicasets controller, NodeController, NamespaceController etc
 
 5. **Cloud Controller Manager (CCM)**
    - Integrates Kubernetes with the cloud provider.
    - It manages cloud-specific resources and interacts with the cloud provider's API.
+   - Comes with managed k8s offerings like EKS, AKS, GKE etc
+   - Give power to use and provision resource on Public Cloud(ALB,NLB,IAM,KMS), it talk to public cloud APIs.
 
 ## Data Plane Components
 
 1. **Kubelet**  
-   - An agent that runs on each worker node.  
+   - An agent that runs on each worker node.
+   - Monitor node and pod health.
+   - instruct the CRI to pull the image and create container and it manage the pod
    - Communicates with the control plane and ensures that containers are running as expected.
 
 2. **Kube-proxy**  
-   - A network proxy that runs on each worker node.  
+   - A network proxy that runs on each worker node.
    - Handles network routing and service discovery within the cluster.
 
 3. **Container Runtime**  
-   - The software responsible for running containers on the worker nodes (e.g., containerd, CRI-O, Podman, Rocket).
+   - The software responsible for running containers on the worker nodes (e.g., containerd, CRI-O, Podman, Rocket, Docker).
 
 ## Control Plane vs Data Plane
 
@@ -90,6 +97,9 @@ Kubernetes operates on a master-worker architecture, where:
 | **Focus**          | Orchestration, management, and control               | Running applications and managing resources |
 
 ---
+
+- Running multiple Pods ensure HA, LB, No Overloading
+- Deployment psread out through out the Data Plane
 
 ## **Kubernetes: Python Frontend, Redis Service, kube-proxy, and CNI Interaction**
 
@@ -110,6 +120,12 @@ Kubernetes operates on a master-worker architecture, where:
     * **Traffic Routing:**
         * **From Python Frontend to Redis Pod:** CNI ensures that the traffic routed by kube-proxy can traverse the cluster’s network infrastructure correctly to reach the selected Redis Pod.
         * **Pod-to-Pod Communication:** The CNI plugin implements the network routes and rules that enable communication between Pods across different nodes.
+   * Assigne Ip address to the pods
+   * Assigning NIC to the pods
+   * IPAM(IP Addresss management
+   * Network Policy Enforcement
+   * Pod-to-Pod Networking
+   * A CNI (Container Network Interface) plugin is a standardized framework that manages network connectivity for pods, enabling communication between them and external networks by configuring their network interfaces and handling IP address allocation.
 
 4. **Redis Pod Response:**
     * The selected Redis Pod processes the request and sends the response directly back to the originating Python frontend Pod.
@@ -127,11 +143,22 @@ Kubernetes operates on a master-worker architecture, where:
 
 * **kube-proxy:**
     * Acts as a traffic director for requests made to Services.
+    * Take care of service to Pod routing
     * Implements the routing and load-balancing logic for traffic sent to the Redis Service, ensuring requests are forwarded to a healthy Redis Pod.
+    * Lb
+    * Route table
+    * Health Checks
+    * Optional
 
 * **Redis Service:**
     * Serves as a stable abstraction layer, hiding the dynamic nature of Pod IP addresses from the Python frontend.
     * Provides a consistent entry point (ClusterIP or DNS) for communication with the Redis deployment and handles load balancing via kube-proxy.
+ 
+  
+When the Python frontend sends a request to the redis-service, CoreDNS translates the redis-service to the corresponding IP assigned to it when the service was created. 
+CoreDNS is a DNS server in Kubernetes that resolves service names to IP addresses, enabling communication between pods and services.
+
+Pods are ephemeral resources, meaning they are temporary and are dynamically created, destroyed, or replaced based on factors such as application demand, health checks, and scaling requirements.
 
 ## Example Flow: Communication Between Pods
 
