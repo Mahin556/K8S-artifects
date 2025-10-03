@@ -154,6 +154,7 @@ kubectl create rc nginx-rc --image=nginx --replicas=3
 - ReplicaSet is an improved version of ReplicationController.
 - It supports **set-based selectors**, providing more flexibility in managing pods.
 - ReplicaSets are often managed by **Deployments**, which add advanced capabilities.
+- Sequence in YAML does't matter.
 
 
 ### **rs Manifest Example**
@@ -259,7 +260,7 @@ spec:
 ```
 
 ### Explanation:
-1. **`.selector.matchExpressions`**: Defines the rules for selecting pods:
+1. **`.selector.matchExpressions`**: Defines the rules for selecting pods(condition for pods to be managed by that RS:
    - Includes pods where:
      - `app` is `nginx` or `apache`.
      - `environment` is **not** `development`.
