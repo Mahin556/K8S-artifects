@@ -41,7 +41,8 @@ Kubernetes operates on a master-worker architecture, where:
 - It need to be HA
 - EKS---> 2 API-server, 3 ETCD spread accross 3 AZs in Single region for HA
 
-### Worker Nodes
+### Data Plane
+##### Worker Nodes
 - **Role**: These are the machines where your applications actually run.
 - **Description**: They execute the instructions received from the control plane.
 
