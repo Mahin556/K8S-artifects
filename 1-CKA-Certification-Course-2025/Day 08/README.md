@@ -119,6 +119,9 @@ For example, in a cluster running multiple applications, each application can ru
 ## Example `kubeconfig` File:
 
 Here's a simplified example of what the `kubeconfig` file might look like:
+```bash
+kubectl config view #safe way to view config file instead directly opening a file
+```
 
 ```yaml
 apiVersion: v1
