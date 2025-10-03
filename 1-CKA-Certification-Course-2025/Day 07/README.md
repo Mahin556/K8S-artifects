@@ -38,6 +38,8 @@ Kubernetes operates on a master-worker architecture, where:
 ### Control Plane
 - **Role**: This is the brain of the cluster, responsible for managing and orchestrating all the worker nodes.
 - **Description**: It's a set of core components that run on a separate set of machines.
+- It need to be HA
+- EKS---> 2 API-server, 3 ETCD spread accross 3 AZs in Single region for HA
 
 ### Worker Nodes
 - **Role**: These are the machines where your applications actually run.
