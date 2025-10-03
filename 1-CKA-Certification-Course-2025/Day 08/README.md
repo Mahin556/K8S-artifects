@@ -88,7 +88,7 @@ nodes:
 
 ## Scenario:
 
-![Alt text](/images/8a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/8a.png)
 
 Varun, the user, wants to access three different Kubernetes clusters from his laptop. Let's assume these clusters are:
 1. **Cluster 1** (for development)
@@ -215,7 +215,7 @@ Using contexts, Varun can ensure that his commands (like `kubectl get pods`) are
 
 
 ## Kubernetes Origin
-![Alt text](/images/8b.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/8b.png)
 
 ## Additional Resources:
 
