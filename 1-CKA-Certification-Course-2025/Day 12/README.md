@@ -336,7 +336,7 @@ User → Building-2 Front Desk (NodePort) → Extension 10 (ClusterIP) → HR (P
 - **External Access** – Allows users outside the cluster to access a service using `NodeIP:NodePort`.  
 - **Works Across All Nodes** – The service is available on **every worker node**, regardless of where the actual pods are running.  
 - **Built on ClusterIP** – Internally, a **NodePort service forwards requests to a ClusterIP service**, which then routes traffic to the correct pod.  
-- **Fixed Port Range (30000-32767)** – NodePort services use a **predefined range** to avoid conflicts with system and ephemeral ports. This range is configurable, but it’s **best practice** to keep it unchanged unless necessary.  
+- **Fixed Port Range (30000-32767)** – NodePort services use a **predefined range** to avoid port conflicts with system and ephemeral ports. This range is configurable, but it’s **best practice** to keep it unchanged unless necessary.  
 
 **Note:**
 With both **NodePort** and **LoadBalancer services** (to be discussed later), you can **choose not to explicitly specify the NodePort** in your **YAML manifest**. If you **omit the `nodePort` field**, **Kubernetes** will **automatically assign a port** from the **default NodePort range (30000-32767)**.  
