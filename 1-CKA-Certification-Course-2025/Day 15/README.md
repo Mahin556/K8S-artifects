@@ -181,6 +181,7 @@ When a **static pod** is created, the **kubelet automatically generates a corres
 📌 **Static pods are defined in `/etc/kubernetes/manifests/`**.  
 
 #### **Step 1: Create a Static Pod YAML File**
+- Some VMs not have `vi` or `vim` installed so we can use the cat to create the resources.
 ```sh
 cat <<EOF > /etc/kubernetes/manifests/static-pod.yaml
 apiVersion: v1
