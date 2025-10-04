@@ -122,7 +122,7 @@ But what if you want to pull images from other registries? Let’s explore how t
 #### **1. Pulling Images from AWS Elastic Container Registry (ECR):**
 To pull images from AWS ECR:
 ```bash
-docker pull <repository-uri>:<tag>
+docker pull <registry-domain>/<namespace>/<repository-uri>:<tag> #namespace--> UserName, OrganizationName
 docker pull 123456789012.dkr.ecr.us-east-1.amazonaws.com/my-app:v1.0
 ```
 - **`<repository-uri>`**: The URI for your private repository hosted in ECR.
