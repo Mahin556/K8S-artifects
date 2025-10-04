@@ -40,6 +40,9 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 
 In Kubernetes, scheduling decisions determine where a pod runs within the cluster. While Kubernetes has a built-in **scheduler** that automatically assigns pods to nodes, administrators often need to influence **scheduling decisions** to ensure specific workloads run on designated nodes.
 
+- Nodes---> Memory,CPU,GPU,HDD,SSD,NVME intensive.
+- Scheduler not know these resource related spec of nodes we need to label a node with there resouces and then use affinity to help scheduler to take scheduling decision.
+
 To achieve this, Kubernetes provides **label-based scheduling techniques** such as:  
 - **Node Selector** (Basic)  
 - **Node Affinity and Anti-Affinity** (Advanced)  
