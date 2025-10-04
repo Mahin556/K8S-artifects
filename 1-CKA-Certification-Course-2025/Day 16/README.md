@@ -317,7 +317,7 @@ In Kubernetes, **taints and tolerations** control **where pods can be scheduled*
 
 Imagine we have **four nodes** in our Kubernetes cluster, each with different taints and behaviors:  
 
-![Alt text](/images/16a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/16a.png)
 
 1. **Green Node** 🟢  
    - **Taint:** `color=green:NoSchedule`  
