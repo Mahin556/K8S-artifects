@@ -305,6 +305,7 @@ kubectl describe node my-second-cluster-worker2 | grep -i taints
 ```
 If no taints are listed in the output, the nodes are now available to schedule any pod without restrictions.
 
+- If already running pod is crashed on a tainted node and pod not have toleration then pod will be schedule on different node.
 --- 
 
 # **Advanced Concepts of Kubernetes Taints & Tolerations**  
