@@ -39,7 +39,7 @@ Modern applications **typically avoid** monolithic or single codebase designs, b
 | **Tier**       | **Description**  | **Example Technologies** |
 |---------------|----------------|--------------------------|
 | **Frontend (Web Tier)** | User interface that interacts with the application | HTML, CSS, JavaScript, React, Angular, Vue.js |
-| **Middleware** | Handles authentication, logging, caching, API communication, and service coordination | Express.js, Nginx, API Gateway, Kafka, RabbitMQ |
+| **Middleware** | Things that are not part of bussiness logic Handles authentication, logging, caching, API communication, and service coordination | Express.js, Nginx, API Gateway, Kafka, RabbitMQ |
 | **Backend (Application Tier)** | Handles business logic, processing, and communication with databases | Python, Node.js, Java, Go, .NET |
 | **Database (Data Tier)** | Stores, manages, and retrieves data | MySQL, PostgreSQL, MongoDB, Redis |
 
