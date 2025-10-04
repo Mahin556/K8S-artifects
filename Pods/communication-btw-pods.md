@@ -115,6 +115,136 @@ spec:
   ```
 * Example: `webapp.frontend.svc.cluster.local`
 
+```yaml
+apiVersion: v1
+kind: Namespace 
+metadata:
+  name: namespace1
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod1-namespace1
+  namespace: namespace1
+  labels:
+    app: nginx
+spec:
+  initContainers:
+    - name: init-con-1
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con1
+      image: nginx
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-namespace1
+  namespace: namespace1
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod2-namespace1
+  namespace: namespace1
+  labels:
+    app: curl
+spec:
+  initContainers:
+    - name: init-con-2
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con2
+      image: curlimages/curl:8.16.0
+      command: ["/bin/sh","-c","sleep 3600"]
+
+---
+
+apiVersion: v1
+kind: Namespace 
+metadata:
+  name: namespace2
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod1-namespace2
+  namespace: namespace2
+  labels:
+    app: nginx
+spec:
+  initContainers:
+    - name: init-con-1
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con1
+      image: nginx
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp-namespace2
+  namespace: namespace2
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod2-namespace2
+  namespace: namespace2
+  labels:
+    app: curl
+spec:
+  initContainers:
+    - name: init-con-2
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con2
+      image: curlimages/curl:8.16.0
+      command: ["/bin/sh","-c","sleep 3600"]
+
+...
+```
+
 ---
 
 ### **d) Pod-to-External World**
