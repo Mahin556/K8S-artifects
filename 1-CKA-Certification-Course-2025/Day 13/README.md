@@ -29,7 +29,8 @@ Imperative commands are crucial for:
 ### **Important Flags to Know:**  
 - **`--dry-run=client`**: **Validates** the command **locally** without contacting the **API server**. No resources are created.  
 - **`--dry-run=server`**: **Validates** the command **against the API server**, ensuring **schema and admission control checks** are performed.  
-- **`--rm`**: Deletes the **pod** as soon as you **exit the container**, ideal for **temporary pods** used in **troubleshooting**.  
+- **`--rm`**: Deletes the **pod** as soon as you **exit the container**, ideal for **temporary pods** used in **troubleshooting**.
+- `kubectl` mainly have 2 responsiblity --> yaml syntax, basic k8s schema.
 
 ---
 
@@ -50,7 +51,12 @@ kubectl create deployment backend-deploy \
 - **`--image`**: Specifies the **container image** (`hashicorp/http-echo`).  
 - **`--replicas`**: Defines **3 replicas** for **high availability**.  
 - **`--port`**: The **port on which the container listens** (**5678**).  
-- **`--dry-run=client`**: Validates and **outputs the manifest** (because of the `-o yaml` part) to **backend-deploy.yaml**.  
+- **`--dry-run=client`**: Validates and **outputs the manifest** (because of the `-o yaml` part) to **backend-deploy.yaml**.
+- We can not add a labels to the pod using imparative command.
+
+```yaml
+
+```
 
 ---
 
