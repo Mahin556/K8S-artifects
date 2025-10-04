@@ -106,6 +106,7 @@ kubectl apply -f nginx-manual.yaml
 #### **Step 4: Verify the Pod's Node Assignment**  
 ```sh
 kubectl get pods -o wide
+kubectl get pods <pod_name> -o yaml | grep -i nodename
 ```
 
 #### **Step 5: What Happens If the Node Does Not Exist?** 
