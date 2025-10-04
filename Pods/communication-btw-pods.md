@@ -47,6 +47,62 @@ spec:
 👉 **Solution**: Use **Services** (ClusterIP, NodePort, LoadBalancer).
 
 * A **Service** provides a **stable DNS name** (e.g., `myapp-svc.default.svc.cluster.local`) and load balances across Pods.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod1
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  initContainers:
+    - name: init-con-1
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con1
+      image: nginx
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: myapp
+spec:
+  selector:
+    app: nginx
+  ports:
+  - port: 80
+    targetPort: 80
+
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod2
+  namespace: default
+  labels:
+    app: curl
+spec:
+  initContainers:
+    - name: init-con-2
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con2
+      image: curlimages/curl:8.16.0
+      command: ["/bin/sh","-c","sleep 3600"]
+```
 
 ---
 
