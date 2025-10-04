@@ -193,6 +193,8 @@ kubectl label nodes my-second-cluster-worker storage-
 
 This removes the **storage=ssd** label.  
 
+Now if pod  deleted it will not again schedule on this node.
+
 After this, **any pods with `nodeSelector: { storage: ssd }` will not be scheduled**.
 
 ---
