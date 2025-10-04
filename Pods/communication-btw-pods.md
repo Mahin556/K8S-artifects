@@ -11,6 +11,31 @@
 
   * Example: `container A` can call `http://localhost:8080` to talk to `container B`.
 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: demo-pod
+  namespace: default
+  labels:
+    app: nginx
+spec:
+  initContainers:
+    - name: init-con-1
+      image: busybox
+      command:
+      - "/bin/sh"
+      - "-c"
+      - "sleep 20"
+  containers:
+    - name: con1
+      image: nginx
+    - name: con2
+      image: curlimages/curl:8.16.0
+      command: ["/bin/sh","-c","sleep 3600"]
+```
+- https://hub.docker.com/r/curlimages/curl
+
 ---
 
 ### **b) Pod-to-Pod in the Same Cluster**
