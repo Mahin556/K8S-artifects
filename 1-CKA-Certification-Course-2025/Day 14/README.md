@@ -124,6 +124,7 @@ kubectl delete namespace app1-ns
 ```sh
 kubectl get pods -n app1-ns
 kubectl get services -A
+kubectl api-resources --namespaced=flase 
 ```
 
 ---
