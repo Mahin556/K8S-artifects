@@ -204,6 +204,61 @@ kubectl run test-pod \
 
 ---
 
+```bash
+controlplane:~$ kubectl run nginx --image=nginx
+pod/nginx created
+
+controlplane:~$ kubectl exec -it nginx -- bash
+
+root@nginx:/# cat /etc/resolv.conf 
+search default.svc.cluster.local svc.cluster.local cluster.local
+nameserver 10.96.0.10
+options ndots:5
+root@nginx:/# exit
+exit
+
+controlplane:~$ kubectl get svc -n kube-system
+NAME       TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   14d
+
+controlplane:~$ kubectl get pods -n kube-system | grep -i coredns
+coredns-6ff97d97f9-4wljj                  1/1     Running   1 (11m ago)   14d
+coredns-6ff97d97f9-wmpcb                  1/1     Running   1 (11m ago)   14d
+
+kubectl get pods -n kube-system -owide | grep -i coredns
+coredns-6ff97d97f9-4wljj                  1/1     Running   1 (12m ago)   14d   192.168.1.2   node01         <none>           <none>
+coredns-6ff97d97f9-wmpcb                  1/1     Running   1 (12m ago)   14d   192.168.1.3   node01         <none>           <none>
+
+controlplane:~$ kubectl describe svc kube-dns -n kube-system
+Name:                     kube-dns
+Namespace:                kube-system
+Labels:                   k8s-app=kube-dns
+                          kubernetes.io/cluster-service=true
+                          kubernetes.io/name=CoreDNS
+Annotations:              prometheus.io/port: 9153
+                          prometheus.io/scrape: true
+Selector:                 k8s-app=kube-dns
+Type:                     ClusterIP
+IP Family Policy:         SingleStack
+IP Families:              IPv4
+IP:                       10.96.0.10
+IPs:                      10.96.0.10
+Port:                     dns  53/UDP
+TargetPort:               53/UDP
+Endpoints:                192.168.1.3:53,192.168.1.2:53
+Port:                     dns-tcp  53/TCP
+TargetPort:               53/TCP
+Endpoints:                192.168.1.3:53,192.168.1.2:53
+Port:                     metrics  9153/TCP
+TargetPort:               9153/TCP
+Endpoints:                192.168.1.3:9153,192.168.1.2:9153
+Session Affinity:         None
+Internal Traffic Policy:  Cluster
+Events:                   <none>
+```
+
+---
+
 
 ## **Key Takeaways:**  
 
