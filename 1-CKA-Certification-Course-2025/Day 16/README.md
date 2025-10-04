@@ -350,7 +350,7 @@ Imagine we have **four nodes** in our Kubernetes cluster, each with different ta
 
 ## **Pod Placement Behavior for New Pods**  
 
-![Alt text](/images/16a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/16a.png)
 
 Now, let's introduce **four new pods** and observe where they are scheduled **after a new untainted node is added to the cluster**.  
 
