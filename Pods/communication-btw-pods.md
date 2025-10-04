@@ -256,6 +256,91 @@ spec:
   * **LoadBalancer Service**
   * **Ingress Controller** (for HTTP/HTTPS routing).
 
+* Pod to External World (Outbound)
+  ```yaml
+  # pod.yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: curl-pod
+  spec:
+    containers:
+    - name: curl
+      image: curlimages/curl
+      command: ["sleep", "3600"]
+  ```
+
+* NodePort Service
+  ```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-nodeport-svc
+  spec:
+    selector:
+      app: nginx
+    type: NodePort
+    ports:
+      - port: 80        # service port inside cluster
+        targetPort: 80  # pod container port
+        nodePort: 30080 # external port on node
+  ---
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: nginx-deploy
+  spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app: nginx
+    template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+          - containerPort: 80
+  ```
+
+* LoadBalancer Service (works in cloud providers like AWS, GCP, Azure, or Minikube with tunnel)
+  ```yaml
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: my-lb-svc
+  spec:
+    selector:
+      app: nginx
+    type: LoadBalancer
+    ports:
+      - port: 80
+        targetPort: 80
+  ```
+
+* Ingress Controller
+  ```yaml
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: my-ingress
+  spec:
+    rules:
+    - host: myapp.local
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: my-nodeport-svc
+              port:
+                number: 80
+  ```
+
 ---
 
 🔑 **Summary:**
