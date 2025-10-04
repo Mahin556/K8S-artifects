@@ -22,7 +22,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 ## **Why Are Imperative Commands Important?**  
 
 Imperative commands are crucial for:  
-- **Daily Troubleshooting:** Quickly create test pods or services to check **connectivity** or **network policies**.  
+- **Daily Troubleshooting:** Quickly create test pods or services to check **connectivity** or **network policies** by creating a pod for testing using imperative commands.  
 - **CKA Exam:** Saves time when you need to **quickly generate YAML manifests** using `-o yaml > file.yaml`.  
 - **Real-World Scenarios:** Useful when testing **accessibility**, **deploying temporary resources**, or **verifying configurations**.  
 
