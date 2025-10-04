@@ -14,7 +14,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 
 A **three-tier architecture** is a common software design pattern that separates applications into **three logical layers** to improve scalability, maintainability, and separation of concerns.  
 
-### Monolithic Architecture  
+### Monolithic Architecture(single system)
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/11c.png)
 
@@ -152,7 +152,7 @@ Microservices address these issues by **breaking down large, tightly coupled tie
 
 ---
 
-# **4. Introduction to Microservices**  
+# **4. Introduction to Microservices(multiple subsystems**  
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/11b.png)
 
@@ -251,6 +251,11 @@ The **database tier** stores, manages, and retrieves structured or unstructured 
 ### **Scaling Microservices in Kubernetes**  
 - Each microservice runs as its own **Kubernetes Deployment.**  
 - **HPA (Horizontal Pod Autoscaler)** can scale each microservice separately. HPA can create and delete pods based on load, we will look into this later in the course.
+
+---
+
+Monolithic ---> Single system
+Multipe Physical server or Virtual server and Microservices ---> Multiple sub systems communicate over APIs
 
 ---
 
