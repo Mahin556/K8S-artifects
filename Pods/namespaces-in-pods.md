@@ -46,10 +46,23 @@ When Kubernetes runs multiple containers inside a Pod, they share some namespace
   ```bash
   hostname
   ```
-
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: mypod
+  spec:
+    hostname: custom-host
+    containers:
+      - name: busybox1
+        image: busybox
+        command: ["sh", "-c", "hostname && sleep 3600"]
+      - name: busybox2
+        image: busybox
+        command: ["sh", "-c", "hostname && sleep 3600"]
+  ```
   Run inside **any container of the Pod**, it will show the same value.
-
-👉 This makes monitoring/logging consistent across containers inside a Pod.
+  This makes monitoring/logging consistent across containers inside a Pod.
 
 ---
 
