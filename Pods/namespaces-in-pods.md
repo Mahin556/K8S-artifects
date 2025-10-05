@@ -103,6 +103,49 @@ When Kubernetes runs multiple containers inside a Pod, they share some namespace
 
 👉 Without shared volumes, containers cannot see each other’s files.
 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: log-sharing-pod
+spec:
+  shareProcessNamespace: true
+  volumes:
+    - name: shared-logs
+      emptyDir: {}   # Ephemeral volume shared between containers
+  containers:
+    - name: app
+      image: busybox
+      command: ["/bin/sh", "-c", "while true; do echo Hello from App >> /var/log/shared/app.log; sleep 5; done"]
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/shared
+    - name: sidecar
+      image: busybox
+      command: ["/bin/sh", "-c", "tail -f /var/log/shared/app.log"]
+      volumeMounts:
+        - name: shared-logs
+          mountPath: /var/log/shared
+```
+```bash
+node01:~$ crictl ps
+
+node01:~$ crictl inspect ff80a6512bce0 | grep -i pid
+    "pid": 16652,
+            "path": "/proc/16569/ns/pid",
+            "type": "pid"
+
+node01:~$ lsns -p 16652
+        NS TYPE   NPROCS   PID USER  COMMAND
+4026531834 time      151     1 root  /sbin/init
+4026531837 user      151     1 root  /sbin/init
+4026532609 net         4 16569 65535 /pause
+4026532669 uts         4 16569 65535 /pause
+4026532670 ipc         4 16569 65535 /pause
+4026532671 pid         4 16569 65535 /pause
+4026532674 mnt         1 16652 root  tail -f /var/log/shared/app.log
+4026532675 cgroup      1 16652 root  tail -f /var/log/shared/app.log
+```
 ---
 
 ## 📊 **Quick Summary Table**
