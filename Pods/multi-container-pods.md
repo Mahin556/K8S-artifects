@@ -121,10 +121,119 @@ spec:
 
 You can use **both patterns** in a single Pod.
 Example:
+```yaml
+# ---------------------------------------------------------
+# 1. Web Application Pod with InitContainer and Log Sidecar
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: webapp-with-logging
+  labels:
+    app: webapp
+spec:
+  # Init container waits until the database is available
+  initContainers:
+    - name: wait-for-db
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          echo "Checking database connectivity..."
+          start_time=$SECONDS
+          until nc -z my-database 5432; do 
+              echo "Waiting for database to be ready..."
+              sleep 2
+          done
+          end_time=$SECONDS
+          elapsed_time=$((end_time - start_time))
+          echo "Database became available after ${elapsed_time} seconds."
 
-* Init Container: clone Git repo into a volume.
-* Main App: serves files.
-* Sidecar: syncs/updates repo in background.
+  containers:
+    # Main application container that generates logs
+    - name: webapp
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          mkdir -p /var/log/app
+          echo "Starting WebApp container..."
+          while true; do
+              echo "$(date) : Log entry from main container" >> /var/log/app/app.log
+              sleep 5
+          done
+      volumeMounts:
+        - name: logs
+          mountPath: /var/log/app
+
+    # Sidecar container to collect and stream logs
+    - name: log-collector
+      image: busybox
+      command:
+        - sh
+        - -c
+        - |
+          echo "Starting Log Collector..."
+          tail -n+1 -f /var/log/app/app.log
+      volumeMounts:
+        - name: logs
+          mountPath: /var/log/app
+
+  # Shared temporary storage for logs
+  volumes:
+    - name: logs
+      emptyDir: {}
+
+---
+
+# ---------------------------------------------------------
+# 2. Service for the Database
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-database
+  labels:
+    app: database
+spec:
+  selector:
+    app: database
+  ports:
+    - name: db-port
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+
+# ---------------------------------------------------------
+# 3. Database Pod
+# ---------------------------------------------------------
+apiVersion: v1
+kind: Pod
+metadata:
+  name: database
+  labels:
+    app: database
+spec:
+  containers:
+    - name: database
+      image: postgres
+      ports:
+        - containerPort: 5432
+      env:
+        - name: POSTGRES_PASSWORD
+          value: "examplepassword"
+```
+```bash
+kubectl apply -f webapp-with-db.yaml
+kubectl get pods
+kubectl logs -f webapp-with-logging -c log-collector
+kubectl logs -f webapp-with-logging -c wait-for-db
+kubectl exec -it webapp-with-logging -c webapp -- nc -zv my-database 5432
+```
 
 ### References
 - https://www.geeksforgeeks.org/devops/kubernetes-pods/
