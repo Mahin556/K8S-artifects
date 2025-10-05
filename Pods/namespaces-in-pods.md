@@ -90,19 +90,6 @@ When Kubernetes runs multiple containers inside a Pod, they share some namespace
   * You can see and signal processes across containers in the same Pod.
   * Useful for debugging or sidecars (e.g., watchdog container monitoring main process).
 
----
-
-### 2. **Mount / Filesystem Namespace**
-
-* Each container has its **own root filesystem** (from its container image).
-* However, **Pod volumes can be mounted into multiple containers**, allowing shared files/directories.
-* Example use case:
-
-  * **Init container** downloads configs into a `ConfigMap` volume.
-  * **Main container** reads configs from the same volume.
-
-👉 Without shared volumes, containers cannot see each other’s files.
-
 ```yaml
 apiVersion: v1
 kind: Pod
@@ -146,6 +133,19 @@ node01:~$ lsns -p 16652
 4026532674 mnt         1 16652 root  tail -f /var/log/shared/app.log
 4026532675 cgroup      1 16652 root  tail -f /var/log/shared/app.log
 ```
+---
+
+### 2. **Mount / Filesystem Namespace**
+
+* Each container has its **own root filesystem** (from its container image).
+* However, **Pod volumes can be mounted into multiple containers**, allowing shared files/directories.
+* Example use case:
+
+  * **Init container** downloads configs into a `ConfigMap` volume.
+  * **Main container** reads configs from the same volume.
+
+👉 Without shared volumes, containers cannot see each other’s files.
+
 ---
 
 ## 📊 **Quick Summary Table**
