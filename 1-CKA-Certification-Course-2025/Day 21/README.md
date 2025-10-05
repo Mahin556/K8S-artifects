@@ -49,8 +49,9 @@ In Kubernetes, pods provide a **shared execution environment**, making them idea
 ### **What Are Multi-Container Pods?**
 A **multi-container pod** is simply a pod containing **more than one container**. These containers:
 - Share **network namespaces** (e.g., communicate via `localhost`).
-- Can access **shared storage volumes** (if defined in the pod spec).
+- Can access **shared storage volumes** (if defined in the pod spec).(container can access and may not access it is depend on is you define in container or not).
 - Work together to fulfill a specific purpose.
+- Also share port space.
 
 Typically, a **multi-container pod** includes **one primary container** (the main application) and one or more **helper containers** (such as sidecars, ambassadors, or adapters).
 
@@ -73,6 +74,12 @@ Typically, a **multi-container pod** includes **one primary container** (the mai
 ![Alt text](/1-CKA-Certification-Course-2025/images/21a.png)
 ![Alt text](/1-CKA-Certification-Course-2025/images/21b.png)
 
+Main container ---> Main application logic
+helper container ---> init, sidecar, Ambassador, Adapter
+
+Init container ---> Seperate container
+Sidecar, Ambassador, Adapter ---> Same as main container but have diff Logical patterns.
+
 Multi-container pods generally follow four key patterns:
 
 #### **1. Init Containers**
@@ -89,11 +96,13 @@ Init containers are **startup containers** designed to run before the main appli
 
 #### **Use Cases:**
 Common preconditions include:
-1. **Database readiness**: Verify connection or schema migration before app startup.
+1. **Database readiness**: Verify connection/readiness or schema migration before app startup.
 2. **External API health checks**: Ensure critical APIs are reachable.
 3. **File or directory initialization**: Create required directories or files for the app.
 4. **Fetching secrets/configurations**: Download secrets from external systems.
 5. **Cleaning up temporary files**: Ensure temporary files from previous runs are removed.
+6. **Service Availablity**: Make sure service is available before main application container try to access it.
+   If you have separate front-end and back-end deployments, like we did in Day 12, you may want the front-end container to initiate connections only after the back-end service (backend-svc) is available. Init containers are ideal for handling such preconditions by ensuring the front-end waits until the back-end service is reachable before starting.
 
 ---
 
@@ -103,12 +112,15 @@ The **Sidecar Pattern** involves containers that **extend or complement the main
 
 #### **Use Cases**:
 1. **Logging**: Collect logs and send them to central systems (e.g., Fluentd, Fluent Bit).
-2. **Monitoring**: Export metrics for tools like Prometheus.
+2. **Monitoring**: Export metrics for tools like Prometheus(as sidecar container or as a pod for whole cluster.
 3. **Proxying**: Handle incoming traffic (e.g., Envoy, Istio, AWS App Mesh).
+   Service meshes ---> Infra layer that manages communication between different services, used in bigger kubernetes implementations(when we have mini microservices, traffic management(routing, LB, traffic shaping-->restric communication, limit bandwidth), authentication, authorization, observablity, logging.
 4. **Data synchronization**: Sync files or configurations to external locations.
 
 #### **Example:**
 A sidecar proxy can intercept network traffic flowing into the pod, provide telemetry data, or encrypt the communication.
+
+it is used to decouple thing --> it reduce the container failure chances.
 
 ---
 
@@ -117,9 +129,9 @@ A sidecar proxy can intercept network traffic flowing into the pod, provide tele
 The **Ambassador Pattern** involves containers that act as **proxies between the pod and external systems**. Unlike the sidecar pattern, the ambassador is focused on handling **external communication**.
 
 #### **Use Cases**:
-
+- outsource
 1. **API Gateways**: Proxy external client requests to internal services, routing traffic based on paths or headers (e.g., `/api/orders` to Order Service).  
-2. **Connection Management**: Optimize and pool connections to external resources like databases or APIs, ensuring efficient usage (e.g., managing PostgreSQL connections).  
+2. **Connection Management**: Optimize and pool connections to external resources like databases or APIs, ensuring efficient usage (e.g., managing PostgreSQL connections), Keep open connection for 10 minites, to reduce resource usage while opening a connection.
 3. **Security**: Terminate TLS or add authentication layers (e.g., handling OAuth token validation before forwarding requests).  
 
 #### **Examples**:
