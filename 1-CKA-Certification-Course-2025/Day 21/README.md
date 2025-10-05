@@ -391,6 +391,7 @@ spec:
     - In-Summary:
       - This **init container** is ensuring that the Kubernetes Service **`main-app-svc`** is **DNS-resolvable and available** **before starting the main container**.
     - It blocks the main container until that condition is met—perfect use of an init container to handle **dependency readiness**.
+    - If internet connection goes down and image already cached if we pull it previously of run pod with that image and image tag is `latest then the imagePullPolicy, which defaults to "Always" when using the :latest tag. Kubernetes assumes you want the most recent version, so it pulls the image every time the container starts, even if it's already present locally, and it give error if internet goes down.
 3. **Main Container (`main-app`)**:
    - Starts **after both init containers** have successfully completed their checks.
 
