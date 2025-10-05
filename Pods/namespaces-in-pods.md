@@ -61,6 +61,10 @@ When Kubernetes runs multiple containers inside a Pod, they share some namespace
         image: busybox
         command: ["sh", "-c", "hostname && sleep 3600"]
   ```
+  Result:
+  * Hostname = custom-host
+  * DNS name = custom-host.<namespace>.pod.cluster.local
+  
   Run inside **any container of the Pod**, it will show the same value.
   This makes monitoring/logging consistent across containers inside a Pod.
 
