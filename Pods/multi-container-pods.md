@@ -67,13 +67,22 @@ spec:
 
 ```yaml
 apiVersion: v1
+apiVersion: v1
 kind: Pod
 metadata:
   name: webapp-with-logging
 spec:
   containers:
     - name: webapp
-      image: my-webapp:latest
+      image: busybox
+      command: 
+        - sh
+        - -c
+        - |
+            while true;do
+                echo "$(date) : Log from main container" >> /var/log/app/app.log
+                sleep 5 
+            done
       volumeMounts:
         - name: logs
           mountPath: /var/log/app
