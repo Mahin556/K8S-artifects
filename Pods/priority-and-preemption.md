@@ -493,3 +493,6 @@ spec:
 | **Preemption**        | Evicting lower-priority Pods to schedule higher ones | Happens automatically                             |
 | **preemptionPolicy**  | Controls whether a Pod can preempt others            | `Never` or `PreemptLowerPriority`                 |
 | **Built-in Classes**  | For system-critical Pods                             | `system-node-critical`, `system-cluster-critical` |
+
+### References:
+- https://devopscube.com/pod-priorityclass-preemption/
