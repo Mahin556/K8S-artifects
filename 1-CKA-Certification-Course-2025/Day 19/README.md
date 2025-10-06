@@ -119,7 +119,8 @@ The most common **resource types** in Kubernetes are:
 
 
 Requests and limits **must be defined per container** inside a Pod.
-
+- We use other storage like NFS, SAS, and cloud to store application data no VM or node storage.
+- But by default containers store loggin data no node using [Ephemeral Storage](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#local-ephemeral-storage) we can control how much then consume node storage.
 ---
 
 ## How Requests and Limits Work  
