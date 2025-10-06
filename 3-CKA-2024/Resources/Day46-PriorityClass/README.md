@@ -6,6 +6,8 @@ This solution demonstrates how to implement Pod Priority and Preemption in Kuber
 
 When cluster resources are limited, not all pods can run simultaneously. Kubernetes uses Pod Priority to determine which pods should be scheduled 
 first and potentially preempt (evict) lower priority pods when necessary.
+Priority is number.
+Priority class is resouce which is used to define priority so we does not need to directly specify the priority to the pod itself.
 
 ## Step 1: Create Priority Classes
 
@@ -38,7 +40,6 @@ description: "This priority class should be used for medium priority service pod
 ```
 
 ### Low Priority Class
-
 ```yaml
 # low-priority.yaml
 apiVersion: scheduling.k8s.io/v1
@@ -46,9 +47,10 @@ kind: PriorityClass
 metadata:
   name: low-priority
 value: 10000
-globalDefault: true
+globalDefault: true 
 description: "This priority class should be used for low priority service pods."
 ```
+- `globalDefault: true` make is default priority for the all pods.
 
 Apply these manifests:
 
