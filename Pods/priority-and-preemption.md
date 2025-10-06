@@ -16,7 +16,7 @@ So, priority helps Kubernetes decide:
 ## 🧱 2. **PriorityClass – How Priority Is Defined**
 
 * Priority is **not** directly set in the Pod — instead, it is defined in a **PriorityClass object**.
-* A `PriorityClass` is a **cluster-level resource** that defines:
+* A `PriorityClass` is a **cluster-level resource**((non-namespaced)) that defines:
 
   * The **name** of the class.
   * The **numerical priority value**.
@@ -99,6 +99,8 @@ When a new Pod **cannot be scheduled** due to lack of resources:
    * The **higher-priority Pod is scheduled** in their place.
 
 This process is called **Preemption**.
+
+The pod preemption feature allows Kubernetes to preempt (evict) lower-priority pods from nodes when higher-priority pods are in the scheduling queue and no node resources are available.
 
 ---
 
@@ -188,7 +190,204 @@ Kubernetes has **built-in PriorityClasses** for critical system components:
 | `system-cluster-critical` | 2000000000 | Cluster-level critical components (e.g. kube-dns)       |
 | `system-node-critical`    | 2000001000 | Node-level critical daemons (e.g. kubelet, node agents) |
 
+* system-node-critical: This class has a value of 2000001000. Static pods Pods like etcd, kube-apiserver, kube-scheduler and Controller manager use this priority class.
+* system-cluster-critical: This class has a value of 2000000000. Addon Pods like coredns, calico controller, metrics server, etc use this Priority class.
+
 These ensure critical system services **never get preempted** by user Pods.
+
+## How Preemption Works in Kubernetes (Detailed Process)
+
+#### ⚙️ **How Preemption Works in Kubernetes (Detailed Process)**
+
+When you create Pods with **PriorityClassName**, Kubernetes assigns them a **priority value** (from the `PriorityClass` object).
+The **Scheduler** and the **Priority Admission Controller** then use that value during scheduling decisions.
+
+---
+
+#### 🧩 **Step-by-Step Flow of Preemption**
+
+##### **Step 1 — Pod Creation & Admission**
+
+* When a Pod is created with a `priorityClassName`, the **Priority Admission Controller**:
+
+  * Looks up the `PriorityClass` object.
+  * Adds its **numeric priority value** to the Pod spec as an internal field.
+  * Example:
+
+    ```yaml
+    priorityClassName: high-priority
+    # internally resolved as
+    priority: 1000
+    ```
+
+---
+
+##### **Step 2 — Scheduling Queue Ordering**
+
+* The **Kubernetes Scheduler** maintains a **queue** of all pending Pods.
+* It always sorts this queue by **priority (descending order)** — meaning:
+
+  * Higher-priority Pods are scheduled first.
+  * Lower-priority Pods wait longer if resources are tight.
+
+So if the cluster is under load:
+
+* The scheduler picks **high-priority Pods first** to place on nodes.
+
+---
+
+##### **Step 3 — Resource Availability Check**
+
+* For the selected Pod (say, a high-priority Pod):
+
+  * The scheduler checks **each node** to see if enough CPU, memory, and constraints (taints, affinity, etc.) are satisfied.
+
+If **a node has enough resources →** Pod gets scheduled normally. ✅
+If **no nodes can fit →** preemption logic starts. ⚠️
+
+---
+
+##### **Step 4 — Preemption Triggered**
+
+* When no node can accommodate the Pod, the scheduler activates **preemption**:
+
+  * It scans nodes again and checks:
+
+    > "If I remove one or more **lower-priority Pods**, can I make space for this high-priority Pod?"
+
+---
+
+##### **Step 5 — Victim Pod Selection**
+
+* The scheduler identifies potential **victim Pods**:
+
+  * Only **lower-priority Pods** can be preempted.
+  * Among them, it picks Pods that, if removed, will:
+
+    * Free enough resources (CPU/memory).
+    * Still meet the scheduling constraints of the high-priority Pod (affinity, taints, etc.).
+  * Scheduler chooses **minimum necessary victims** to make room efficiently.
+
+---
+
+##### **Step 6 — Preemption Decision**
+
+Once victims are identified:
+
+* The scheduler **marks** those lower-priority Pods for deletion.
+* It then schedules the high-priority Pod to the selected node.
+
+This process is not immediate killing — it follows graceful termination.
+
+---
+
+##### **Step 7 — Victim Pod Termination**
+
+* Each **preempted Pod** receives a **grace period**:
+
+  * Default: **30 seconds**
+  * Custom: You can override it using
+
+    ```yaml
+    terminationGracePeriodSeconds: <seconds>
+    ```
+* If a Pod defines **`preStop` lifecycle hooks**, they are run before termination.
+* After the grace period, Kubernetes **forcefully terminates** the Pod if it’s still running.
+
+---
+
+##### **Step 8 — High-Priority Pod Scheduling**
+
+* As soon as the low-priority Pods are terminated and the resources free up:
+
+  * The high-priority Pod is **scheduled on the node**.
+  * Its containers are created and started normally.
+
+---
+
+##### **Step 9 — If Preemption Fails**
+
+If, even after removing lower-priority Pods, the scheduler still can’t satisfy:
+
+* Affinity / anti-affinity rules
+* Tolerations
+* Node selectors
+* Resource requests
+
+Then:
+
+* The scheduler **abandons preemption for that attempt**.
+* It may move on and continue scheduling other (even lower-priority) Pods.
+
+That’s why preemption is **not guaranteed** — it’s a “best effort” mechanism.
+
+---
+
+#### 🧠 **Important Internal Notes**
+
+* **Preemption is node-local**, not cluster-wide:
+
+  * The scheduler only preempts Pods **on one node** where it wants to place the new Pod.
+* **DaemonSets, static Pods, and mirror Pods** are never preempted.
+* **PodDisruptionBudget (PDB)** can block preemption:
+
+  * If evicting Pods would violate a PDB, the scheduler won’t preempt them.
+
+---
+
+#### 📊 **Example Timeline**
+
+| Step | Event                            | Explanation                                          |
+| ---- | -------------------------------- | ---------------------------------------------------- |
+| 1    | `high-pod` created               | Uses PriorityClass with value 1000                   |
+| 2    | Scheduler picks `high-pod`       | Places it at the front of the queue                  |
+| 3    | No node fits                     | Preemption triggered                                 |
+| 4    | NodeX selected                   | Scheduler decides to remove `low-pod` (priority 100) |
+| 5    | `low-pod` marked for termination | Given 30s to shut down gracefully                    |
+| 6    | `low-pod` removed                | Resources freed                                      |
+| 7    | `high-pod` scheduled             | Takes NodeX resources                                |
+| 8    | Cluster stabilizes               | Scheduler continues normal operation                 |
+
+---
+
+#### ⚙️ **Key YAML Fields Involved**
+
+**Pod Spec:**
+
+```yaml
+spec:
+  priorityClassName: high-priority
+  preemptionPolicy: PreemptLowerPriority  # or Never
+  terminationGracePeriodSeconds: 10
+```
+
+**PriorityClass:**
+
+```yaml
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: high-priority
+value: 1000
+globalDefault: false
+description: "For critical workloads"
+```
+
+---
+
+#### 🧾 **Behavior Summary**
+
+| Concept                           | Description                                                              |
+| --------------------------------- | ------------------------------------------------------------------------ |
+| **Priority Admission Controller** | Assigns priority values to Pods based on `priorityClassName`             |
+| **Scheduler Queue**               | Sorted by priority (high to low)                                         |
+| **Preemption Trigger**            | Happens when no node can host a high-priority Pod                        |
+| **Victim Pods**                   | Lower-priority Pods that are evicted to make room                        |
+| **Grace Period**                  | 30 seconds by default (configurable)                                     |
+| **PreemptionPolicy**              | Controls if a Pod can preempt others (`Never` or `PreemptLowerPriority`) |
+| **Failure Case**                  | If constraints not met, scheduler skips preemption and moves on          |
+
+![](/images/pod-priorityclass-1.png)
 
 ---
 
