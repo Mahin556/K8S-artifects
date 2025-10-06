@@ -355,7 +355,8 @@ args: ["--vm", "1", "--vm-bytes", "250M", "--vm-hang", "1"]
 #### **Why is the Container Killed Despite No Memory Pressure?**  
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/19c.png)
-
+- cgroup is the linux feature that control how much memery, cpu, harddisk, io a linux process con consume.
+- If any of the process try to use the resource more then allowed then linux kernel kill that process.
 A container **may** get terminated when it exceeds its memory limit, but **why does this happen even when the node has enough memory?**  
 
 1. **Memory Limits are Enforced by Cgroups:**  
@@ -368,7 +369,8 @@ A container **may** get terminated when it exceeds its memory limit, but **why d
 
 3. **Why Does the Documentation Say "MAY" Get Killed?**  
    - Some Linux configurations (e.g., overcommit settings) **may** allow memory overuse beyond limits in rare cases.  
-   - However, by default, **exceeding memory limits results in an immediate OOM kill**—even if the node has free memory.  
+   - However, by default, **exceeding memory limits results in an immediate OOM kill**—even if the node has free memory.
+   - Some linux configurations(e.g., overcommit settings) may allow memory overuse beyond limits in rare case.
 
 Thus, memory limits are **hard constraints** at the container level, enforced by the **Linux kernel via cgroups**, regardless of node memory availability.
 
