@@ -84,6 +84,7 @@ resources:
 - Each node has **6 vCPUs and 24GB of memory**.  
 - If each container requests **1 vCPU and 2GB of memory**, the node can accommodate up to **6 containers**.  
 - Even though memory is still available, **no more workloads can be scheduled because CPU is fully allocated**.
+- **Hyperthreading** enabled node.
 
 --- 
 
