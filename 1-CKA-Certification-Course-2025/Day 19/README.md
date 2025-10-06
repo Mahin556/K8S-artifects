@@ -428,7 +428,8 @@ spec:
 ### **Step 2: Explanation**  
 - **1 CPU = 1000m** → So `500m` means **half a CPU** and `900m` means **0.9 CPUs**.  
 - The **container is allowed to use up to 900m** of CPU but will be **throttled** if it tries to exceed this.  
-- Run `kubectl top pods` to observe **CPU throttling**. 
+- Run `kubectl top pods` to observe **CPU throttling**.
+- Run `kubectl describe node <node_name>` to see pod req and limit
 
 ---
 
