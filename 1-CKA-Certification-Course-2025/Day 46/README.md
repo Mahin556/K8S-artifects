@@ -57,6 +57,10 @@ That’s when **Preemption** kicks in — Kubernetes **evicts lower-priority pod
 
 To avoid hardcoding numeric priorities in each pod, Kubernetes provides a resource called `PriorityClass`.
 
+Cluster scoped resource.
+
+Assigne pod priority.
+
 Instead of specifying raw priority numbers per pod, you define multiple reusable classes like:
 
 ```yaml
