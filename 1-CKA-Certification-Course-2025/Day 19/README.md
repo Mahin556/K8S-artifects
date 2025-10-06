@@ -99,7 +99,7 @@ Kubernetes allows you to **control resource allocation** for containers using:
 | **Requests** | The minimum CPU/memory a container needs. | Used by the **scheduler** to decide which node to place the Pod on. |
 | **Limits** | The maximum CPU/memory a container can use. | Enforced by the **kernel**, preventing overuse. |
 
-
+- From `1.32` we can also define request and limit for pods
 
 
 ---
