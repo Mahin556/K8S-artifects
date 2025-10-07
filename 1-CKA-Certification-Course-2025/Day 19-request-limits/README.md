@@ -84,9 +84,6 @@ resources:
 - Each node has **6 vCPUs and 24GB of memory**.  
 - If each container requests **1 vCPU and 2GB of memory**, the node can accommodate up to **6 containers**.  
 - Even though memory is still available, **no more workloads can be scheduled because CPU is fully allocated**.
-- **Hyperthreading**
-  - If enabled 1 CPU is Vertual CPU.
-  - If not enabled 1 CPU is Physical CPU.
 
 --- 
 
@@ -99,7 +96,7 @@ Kubernetes allows you to **control resource allocation** for containers using:
 | **Requests** | The minimum CPU/memory a container needs. | Used by the **scheduler** to decide which node to place the Pod on. |
 | **Limits** | The maximum CPU/memory a container can use. | Enforced by the **kernel**, preventing overuse. |
 
-- From `1.32` we can also define request and limit for pods
+
 
 
 ---
@@ -119,8 +116,7 @@ The most common **resource types** in Kubernetes are:
 
 
 Requests and limits **must be defined per container** inside a Pod.
-- We use other storage like NFS, SAS, and cloud to store application data no VM or node storage.
-- But by default containers store loggin data no node using [Ephemeral Storage](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/#local-ephemeral-storage) we can control how much then consume node storage.
+
 ---
 
 ## How Requests and Limits Work  
@@ -355,8 +351,7 @@ args: ["--vm", "1", "--vm-bytes", "250M", "--vm-hang", "1"]
 #### **Why is the Container Killed Despite No Memory Pressure?**  
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/19c.png)
-- cgroup is the linux feature that control how much memery, cpu, harddisk, io a linux process con consume.
-- If any of the process try to use the resource more then allowed then linux kernel kill that process.
+
 A container **may** get terminated when it exceeds its memory limit, but **why does this happen even when the node has enough memory?**  
 
 1. **Memory Limits are Enforced by Cgroups:**  
@@ -369,8 +364,7 @@ A container **may** get terminated when it exceeds its memory limit, but **why d
 
 3. **Why Does the Documentation Say "MAY" Get Killed?**  
    - Some Linux configurations (e.g., overcommit settings) **may** allow memory overuse beyond limits in rare cases.  
-   - However, by default, **exceeding memory limits results in an immediate OOM kill**—even if the node has free memory.
-   - Some linux configurations(e.g., overcommit settings) may allow memory overuse beyond limits in rare case.
+   - However, by default, **exceeding memory limits results in an immediate OOM kill**—even if the node has free memory.  
 
 Thus, memory limits are **hard constraints** at the container level, enforced by the **Linux kernel via cgroups**, regardless of node memory availability.
 
@@ -428,8 +422,7 @@ spec:
 ### **Step 2: Explanation**  
 - **1 CPU = 1000m** → So `500m` means **half a CPU** and `900m` means **0.9 CPUs**.  
 - The **container is allowed to use up to 900m** of CPU but will be **throttled** if it tries to exceed this.  
-- Run `kubectl top pods` to observe **CPU throttling**.
-- Run `kubectl describe node <node_name>` to see pod req and limit
+- Run `kubectl top pods` to observe **CPU throttling**. 
 
 ---
 

@@ -203,7 +203,7 @@ These metrics are provided by the **Metrics Server** (explained below).
 
 #### **Flow with Default Resource Metrics (CPU & Memory)**
 
-![Alt text](/images/20c.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/20c.png)
 
 1. **Metric Collection**:
    - The **kubelet**, present on every node in the cluster, runs **cAdvisor** internally.
@@ -251,7 +251,7 @@ To utilize custom metrics:
 
 #### Flow with Custom Metrics
 
-![Alt text](/images/20d.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/20d.png)
 
 
 1. **Metric Collection**:
