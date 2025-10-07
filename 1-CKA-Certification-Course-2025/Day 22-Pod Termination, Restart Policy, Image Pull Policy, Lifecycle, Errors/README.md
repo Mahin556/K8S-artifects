@@ -59,6 +59,8 @@ This document provides an in-depth understanding of Kubernetes Pod lifecycle, st
   - **Termination Grace Period:** By default, Kubernetes waits for 30 seconds (configurable via `terminationGracePeriodSeconds` in the pod spec) for the container to exit gracefully.
   - **SIGKILL:** If the container does not exit within this grace period, Kubernetes sends a SIGKILL signal to force an immediate shutdown.
 
+- Event/Signal handler
+
 Containers are typically provided with a graceful shutdown period during termination to allow the application to handle the termination signal **(e.g., SIGTERM)** appropriately. This mechanism ensures that important operations, such as closing active connections, flushing cached data, or completing ongoing tasks, are carried out before the container stops.
 
 ### **Example: Graceful Shutdown of a Web Server**
@@ -97,6 +99,27 @@ This **forces the pod to terminate immediately**, and under the hood, it behaves
 When Kubernetes receives this forceful deletion request:
 1. It immediately removes the pod from the API server (even if it's still running on the node).
 2. It then asks the container runtime to kill the container **without giving the app time to shut down gracefully**, similar to a `SIGKILL`.
+
+
+* `kubectl delete pod mypod`
+
+  * Graceful deletion.
+  * The Pod object is removed from the API server.
+  * The **Kubelet** sends a **SIGTERM** signal to containers, giving them time (default **30s grace period**) to shut down cleanly.
+  * After the grace period, if the container hasn’t stopped, **SIGKILL** is sent to force termination.
+
+* `kubectl delete pod mypod --force=true`
+
+  * The Pod object is **immediately deleted** from the API server.
+  * However, the **Kubelet still monitors** the container and respects the **grace period**, allowing normal termination if possible.
+  * Useful if the API object must be removed quickly but you still want a graceful stop on the node.
+
+* `kubectl delete pod mypod --force=true --grace-period=0`
+
+  * **Instant and forceful deletion.**
+  * The Pod is deleted from the API server **immediately**.
+  * The **Kubelet stops tracking** the pod and **kills the container instantly (SIGKILL)** without waiting for any grace period.
+  * Typically used for **stuck pods** or emergency cleanup.
 
 ---
 
@@ -188,6 +211,8 @@ In this example:
   - **CronJobs**: Executes periodic tasks and retries in case of failures.  
   - **Standalone Pods**: Sometimes used for debugging or simple one-off tasks.
 
+- used when you don't want pod to consume unnecessory resources.
+
 **Example**
 For objects like **Jobs**, which commonly use the `OnFailure` restart policy:
 
@@ -204,10 +229,41 @@ spec:
       - name: processor
         image: my-batch-job:latest
 ```
-
 In this example:
 - The **kind** is `Job`.
 - The `restartPolicy` is `OnFailure` (appropriate for retrying failed batch tasks).
+
+* **`ttlSecondsAfterFinished`** is a field in **Kubernetes Job objects**.
+
+* It defines the **time (in seconds)** to wait **after a Job finishes** (either *Succeeded* or *Failed*) before **Kubernetes automatically deletes** it.
+
+* When this TTL expires, both the **Job object** and its **associated Pods** are removed automatically by the **TTL controller**.
+
+* This helps keep the cluster clean by preventing old, completed Jobs from accumulating.
+
+* Example:
+
+  ```yaml
+  apiVersion: batch/v1
+  kind: Job
+  metadata:
+    name: cleanup-job
+  spec:
+    ttlSecondsAfterFinished: 300   # Deletes job 5 minutes after completion
+    template:
+      spec:
+        containers:
+        - name: cleanup
+          image: busybox
+          command: ["sh", "-c", "echo Cleaning up... && sleep 10"]
+        restartPolicy: Never
+  ```
+
+* If `ttlSecondsAfterFinished` is **omitted**, the Job and its Pods **remain indefinitely** until manually deleted.
+
+* Note: The **TTL controller** must be **enabled in the cluster** (it is enabled by default in most modern Kubernetes versions).
+
+
 
 ---
 
@@ -383,6 +439,242 @@ To avoid unexpected behavior (especially when tags like `latest` are reused or i
 3. **Monitor Bandwidth Usage:**  
    Frequent image pulls with `Always` can increase bandwidth consumption and impact cluster performance. Use `IfNotPresent` or `Never` where appropriate to optimize.
 
+Here are the **main ideas and key takeaways** from that explanation about **Image Pull Policy** in Kubernetes:
+
+---
+
+### **Types of Image Pull Policies**
+
+1. **`Always`**
+
+   * Kubernetes **always pulls** the image from the container registry whenever the Pod starts.
+   * Ensures you get the **latest version** of the image.
+   * **Default policy** when:
+
+     * You **don’t specify a tag**, or
+     * You use the **`latest`** tag.
+   * **Use case:** Development or testing environments.
+   * **Avoid in production**, since it causes unnecessary image pulls, bandwidth consumption, and inconsistent behavior.
+
+---
+
+2. **`IfNotPresent`**
+
+   * Kubernetes pulls the image **only if it’s not already present** on the node.
+   * **Ideal for production** because it reduces registry load and network bandwidth.
+   * **Use case:** Stable, versioned images (e.g., `myapp:v1.2.3`).
+   * **Default policy** when using **specific version tags**.
+   * **Risk:**
+     If multiple developers push different images **with the same tag**, nodes might pull inconsistent versions — leading to mismatched application behavior across nodes.
+   * **Best Practice:**
+     Automate image builds to **prevent overwriting existing tags** and enforce **unique versioning**.
+
+### ⚠️ The Risk — Tag Collisions and Inconsistent Deployments
+
+* In Docker and Kubernetes, the **image tag** (like `v1.0.1` or `latest`) is **just a label** — not a unique identifier.
+* When developers **push images with the same tag name** to the container registry (for example, Docker Hub, ECR, or GCR), the **old image is overwritten**.
+* This leads to **different nodes running different image contents** — even though the tag appears identical.
+
+---
+
+#### Example of the Problem
+
+1. Developer **Varun** builds an image:
+
+   ```
+   myapp:v1.0.1
+   ```
+
+   and pushes it to the registry.
+
+   ```bash
+   docker push myrepo/myapp:v1.0.1
+   ```
+
+2. Later, developer **Kavita** also builds an updated image — but accidentally **uses the same tag**:
+
+   ```bash
+   docker push myrepo/myapp:v1.0.1
+   ```
+
+   This overwrites Varun’s image in the registry.
+
+3. Now, when your **Kubernetes cluster** pulls the image:
+
+   * Node 1 (earlier deployment) already has **Varun’s version** cached.
+   * Node 2 (new deployment) pulls **Kavita’s version** from the registry.
+
+   Both nodes **run different code**, but **the tag looks identical (`v1.0.1`)**.
+
+---
+
+#### Consequences
+
+* **Inconsistent behavior across pods/nodes** → different users may experience different app versions.
+* **Hard to debug** → same tag, different code.
+* **Deployment rollback issues** → you can’t reliably roll back, because the tag doesn’t point to a known image anymore.
+* **Security risk** → overwritten tags could introduce unauthorized or unreviewed code into production.
+
+---
+
+### ✅ The Solution — Enforce Unique, Immutable Image Versioning
+
+To prevent this, you must **guarantee that each image tag represents a unique build** and that **tags cannot be overwritten**.
+
+Here’s how:
+
+---
+
+#### 1. **Use Immutable Tags**
+
+* Use **Semantic Versioning** (`Major.Minor.Patch`), e.g. `v1.0.0`, `v1.0.1`, `v1.1.0`.
+* Each build should produce a **new tag** — never reuse old ones.
+* Once pushed, that tag should **never be updated** or overwritten.
+
+---
+
+#### 2. **Use Git-Based or Build-Based Tags**
+
+* Automate your CI/CD pipeline (e.g., Jenkins, GitHub Actions, GitLab CI) to **generate tags automatically**.
+* Common patterns:
+
+  * Use **Git commit SHA**:
+
+    ```
+    myapp:<git-sha>
+    ```
+
+    Example:
+
+    ```
+    myapp:7a2b9c1
+    ```
+  * Use **build number** or **timestamp**:
+
+    ```
+    myapp:build-102
+    myapp:2025-10-05_14-20
+    ```
+
+  This ensures each image corresponds exactly to a specific source code state.
+
+---
+
+#### 3. **Enforce Registry-Level Protection**
+
+* Many registries (like **AWS ECR**, **Harbor**, **JFrog Artifactory**, **GitLab Container Registry**) support **immutable tags**.
+* You can **enable a policy** that prevents pushing an image with an existing tag.
+
+  Example (ECR):
+
+  ```bash
+  aws ecr put-image-tag-mutability --repository-name myapp --image-tag-mutability IMMUTABLE
+  ```
+
+  Once set, trying to push an existing tag again will fail — protecting your production environment.
+
+---
+
+#### 4. **Automate Tag Validation**
+
+* Add a pre-push script or CI pipeline check:
+
+  * Before pushing a new image, check if that tag already exists.
+  * If it does, fail the build and alert the developer.
+
+  Example logic (pseudo-code):
+
+  ```bash
+  if docker manifest inspect myrepo/myapp:v1.0.1 >/dev/null 2>&1; then
+      echo "❌ Tag v1.0.1 already exists. Choose a new version."
+      exit 1
+  fi
+  ```
+
+---
+
+#### 5. **Use SHA Digests for Absolute Uniqueness**
+
+* Even if tags are reused, you can always refer to an **image digest**, which uniquely identifies an image:
+
+  ```
+  myrepo/myapp@sha256:5d41402abc4b2a76b9719d911017c592
+  ```
+* Digests are **immutable** — two images can never share the same digest.
+
+---
+
+#### 6. **Kubernetes Best Practice**
+
+In your Kubernetes YAML manifests:
+
+* Use **versioned tags** (not `latest`).
+* Optionally, use **image digests** for full consistency.
+
+Example:
+
+```yaml
+containers:
+  - name: myapp
+    image: myrepo/myapp:v1.0.3
+    imagePullPolicy: IfNotPresent
+```
+
+or, even safer:
+
+```yaml
+containers:
+  - name: myapp
+    image: myrepo/myapp@sha256:5d41402abc4b2a76b9719d911017c592
+    imagePullPolicy: IfNotPresent
+```
+
+---
+
+### 💡 Summary
+
+| Problem                           | Cause                                    | Solution                                        |
+| --------------------------------- | ---------------------------------------- | ----------------------------------------------- |
+| Nodes running different code      | Developers overwrite existing image tags | Enforce **immutable tagging**                   |
+| Debugging and rollback difficulty | Same tag, different image versions       | Use **semantic or Git-based versioning**        |
+| Security or integrity issues      | No version traceability                  | Use **SHA digests** and **automated pipelines** |
+| Production inconsistency          | No registry-level control                | Enable **tag immutability policy**              |
+
+
+---
+
+3. **`Never`**
+
+   * Kubernetes **never pulls** the image from a registry.
+   * The Pod will start **only if the image already exists locally** on the node.
+   * **Use case:**
+     Air-gapped or isolated environments where nodes are **preloaded with images** and have **no internet access**.
+   * **Behavior:**
+     If the image isn’t found locally, the Pod will **fail to start**.
+
+---
+
+### **Version Tagging Best Practices**
+
+* Use **semantic versioning**:
+  `Major.Minor.Patch` → e.g., `1.2.3`
+
+  * **Major:** Breaking changes
+  * **Minor:** New features (backward-compatible)
+  * **Patch:** Bug fixes
+* Avoid reusing tags (like `latest`) in production — it causes unpredictable deployments.
+* Automate CI/CD pipelines to **block overwriting existing tags** in the registry.
+
+---
+
+### **Default Pull Policy Behavior**
+
+| Image Tag Type             | Default Pull Policy | Example                 |
+| -------------------------- | ------------------- | ----------------------- |
+| No tag or `latest`         | `Always`            | `nginx`, `nginx:latest` |
+| Specific version tag       | `IfNotPresent`      | `nginx:1.23.0`          |
+| Air-gapped/preloaded setup | `Never`             | (manual preload)        |
+
 ---
 
 ## Pod Lifecycle Phases
@@ -390,6 +682,10 @@ To avoid unexpected behavior (especially when tags like `latest` are reused or i
 ![Alt text](/1-CKA-Certification-Course-2025/images/22d.png)
 
 In Kubernetes, the lifecycle of a Pod is divided into distinct **phases** that represent its current state at a given point in time. These phases help administrators understand what the Pod is doing and whether it is functioning as expected.
+
+The status we see in `kubectl get pod` is the status of worst container
+if 3 out of 4 container run fine and 1 give `errImagePull` that this is the also status of pod.
+
 Here are the phases in detail:
 
 #### **1. Pending**
@@ -444,7 +740,7 @@ The `ContainerCreating` subphase of `Pending` represents the final preparatory s
 #### **4. Failed**
 - **What it means:**  
   The Pod lifecycle has ended, but one or more containers have failed (exited with **non-zero** exit codes).
-  - This phase is also terminal, meaning the Pod won't restart (restartPolicy=Never) unless recreated by a controller.
+  - This phase is also terminal, meaning the Pod won't restart (restartPolicy=Never) unless recreated by a controller(in case `crashLoopBackOff`).
 
 ---
 
@@ -452,6 +748,8 @@ The `ContainerCreating` subphase of `Pending` represents the final preparatory s
 - **What it means:**  
   The Pod's state cannot be determined, often because the node hosting the Pod is unreachable or down.
   - This phase is rare and typically indicates infrastructure issues.
+
+With RestartPolicy: Always, Kubernetes continuously restarts the container, so you'll typically see statuses like Running, Pending, or CrashLoopBackOff instead of Completed or Failed. While the pod may briefly show Failed or Completed, it will quickly transition as the kubelet restarts it. We'll observe this behavior in the demo.
 
 ---
 
@@ -574,7 +872,7 @@ Below is a table summarizing the common Pod statuses, their descriptions, causes
 
 | **Pod Status/Error**       | **Description**                                                                                          | **Common Causes**                                                                                                   | **How to Debug**                                                                                                                             |
 |----------------------------|----------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
-| **CrashLoopBackOff**        | Container repeatedly crashes and is restarted with exponential backoff.                                  | - Application errors or bugs<br>- Missing dependencies or misconfigurations<br>- Resource exhaustion (e.g., OOMKilled)<br>- Liveness probe failures | - Inspect logs: `kubectl logs <pod-name>` or `kubectl logs --previous`<br>- Check environment variables, ConfigMaps, and Secrets.<br>- Verify liveness probe setup. |
+| **CrashLoopBackOff**        | Container repeatedly crashes and is restarted with exponential backoff(10s,20s,30s...5m,5m,5m...).                                  | - Application errors or bugs<br>- Missing dependencies or misconfigurations<br>- Resource exhaustion (e.g., OOMKilled)<br>- Liveness probe failures | - Inspect logs: `kubectl logs <pod-name>` or `kubectl logs --previous`<br>- Check environment variables, ConfigMaps, and Secrets.<br>- Verify liveness probe setup. |
 | **ImagePullBackOff**        | Kubernetes is retrying to pull the container image, but previous attempts failed.                        | - Invalid image name or tag<br>- Authentication issues with private registries<br>- Network connectivity problems | - Describe Pod: `kubectl describe pod <pod-name>`<br>- Verify image name and tag.<br>- Test pulling the image manually (`docker pull`).       |
 | **ErrImagePull**            | Immediate failure to pull the container image.                                                          | - Invalid image or tag<br>- Registry authentication issues<br>- Registry network connectivity issues              | - Same as `ImagePullBackOff`.<br>- Check the `Events` section with `kubectl describe pod`.                                                   |
 | **OOMKilled**               | Container terminated because it exceeded its memory limit.                                              | - Application memory leaks or high memory usage<br>- Insufficient memory limits in the Pod spec                   | - Check events: `kubectl describe pod <pod-name>`<br>- Monitor memory usage with `kubectl top pod`.<br>- Adjust memory requests and limits.   |
