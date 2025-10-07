@@ -142,6 +142,7 @@ Let’s assume:
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/24c.png)
 
+Containers a ephemeral in nature they come, do there task and go.
 Since the image layers are **read-only**, any changes made to the container are stored in the **writable layer**. If a container is stopped or fails:
 - For instance, if **Container 2** stops, the **10MB of delta data in its writable layer will be lost**.  
 - This highlights the need for a mechanism to **persist container data**, ensuring important data survives beyond the container's lifecycle.
