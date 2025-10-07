@@ -37,6 +37,8 @@ Determines if the application is **ready** to handle traffic. If this probe fail
    - **Purpose**: Checks if a container is **ready to start accepting traffic**.
    - **Behavior**:
      - When the readiness probe fails, the pod is removed from the service's load balancer, but **the container is not restarted**.
+     - Readiness probes run throughout a Kubernetes pod's entire lifecycle.
+     - Is mark entire pod not ready means all container in it not able to server traffic.
    - **Key Advantage**: Prevents routing traffic to containers that are temporarily unable to serve requests due to initialization delays or resource constraints.
    - **Example**:
      ```yaml
@@ -469,6 +471,61 @@ spec:
   - Container won’t be restarted unnecessarily.
 - Perfect example when **application setup takes time (like dependency installation)**.
 
+
+* Kubernetes utilizes three types of probes to monitor the health and readiness of containers within a Pod: Liveness, Readiness, and Startup probes. Each plays a distinct role in the container's lifecycle. 
+  * 1. Liveness Probes: 
+    • Purpose: Determine if the application running inside a container is healthy and responsive. If the liveness probe fails, Kubernetes restarts the container. 
+    • Lifecycle: Liveness probes run continuously throughout the container's operational lifecycle after any startup probes have succeeded. They aim to catch deadlocks or unresponsive applications. 
+  
+  * 2. Readiness Probes: 
+    • Purpose: Determine if a container is ready to serve traffic. If the readiness probe fails, Kubernetes removes the Pod's IP address from the endpoints of all Services, preventing traffic from being routed to it. 
+    • Lifecycle: Readiness probes also run continuously throughout the container's operational lifecycle after any startup probes have succeeded. They are crucial for ensuring that a container is fully initialized and prepared before receiving requests, especially in scenarios where an application has dependencies or requires a warm-up period. 
+  
+  * 3. Startup Probes: 
+    • Purpose: Determine if a container application has successfully started. If a startup probe fails, the Pod is restarted. They are particularly useful for slow-starting applications. 
+    • Lifecycle: Startup probes execute only during the container's initial startup phase. While a startup probe is running, liveness and readiness probes are paused, preventing them from prematurely terminating or marking a slow-starting container as unhealthy or unready. Once the startup probe succeeds, the liveness and readiness probes begin their regular execution. 
+
+* Probe Mechanisms: 
+  All three probe types can be configured using various mechanisms: [1]  
+  • HTTP GET: Makes an HTTP GET request to a specified path and port. A successful response (status code 200-399) indicates success. 
+  • TCP Socket: Attempts to open a TCP connection to a specified port. A successful connection indicates success. 
+  • Exec: Executes a command inside the container. A zero exit code indicates success. 
+
+* Configuration Example (within a Pod spec): 
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app-pod
+spec:
+  containers:
+  - name: my-app-container
+    image: my-app-image
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 15
+      periodSeconds: 20
+    readinessProbe:
+      httpGet:
+        path: /ready
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    startupProbe:
+      httpGet:
+        path: /startup
+        port: 8080
+      initialDelaySeconds: 0
+      periodSeconds: 5
+      failureThreshold: 30
+```
+AI responses may include mistakes.
+
+
+
+
 ---
 
 ## References:
@@ -477,4 +534,5 @@ spec:
   
 - [Kubernetes Tasks: Configure Liveness, Readiness, and Startup Probes](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/)
 
+- https://codefresh.io/learn/kubernetes-management/6-types-of-kubernetes-health-checks-and-using-them-in-your-cluster/
 ---
