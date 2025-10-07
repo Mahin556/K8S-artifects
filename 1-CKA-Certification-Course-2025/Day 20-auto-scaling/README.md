@@ -200,6 +200,7 @@ Simply put:
 
 - The most common use-case is scaling based on **CPU utilization**.
 - **Memory utilization** can also be used, though it's less common because memory usage patterns are harder to predict.
+- Expose internal mertics API.
 
 These metrics are provided by the **Metrics Server** (explained below).
 
@@ -230,6 +231,7 @@ These metrics are provided by the **Metrics Server** (explained below).
 ### 2. **Custom Metrics Support**
 
 HPA also supports scaling based on **custom metrics**—useful when CPU or memory is **not the right indicator of load** (e.g., request rate, queue length).
+Expose External mertics API.
 
 * Application performance isn’t only dependent on **CPU and memory usage**.
 * Different applications may rely on **other key metrics** depending on their nature.
