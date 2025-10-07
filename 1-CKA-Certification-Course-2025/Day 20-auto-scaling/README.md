@@ -231,6 +231,16 @@ These metrics are provided by the **Metrics Server** (explained below).
 
 HPA also supports scaling based on **custom metrics**—useful when CPU or memory is **not the right indicator of load** (e.g., request rate, queue length).
 
+* Application performance isn’t only dependent on **CPU and memory usage**.
+* Different applications may rely on **other key metrics** depending on their nature.
+* **Network-sensitive** applications may require monitoring **network latency**.
+* **Storage-sensitive** applications may need tracking of **IOPS (input/output operations per second)**.
+* Some applications depend on **external services**, such as **Amazon SQS (queue length)** or **SNS (pub/sub messages)**.
+* In such cases, scaling decisions should be based on **custom metrics**, not just CPU or memory.
+* **Custom metrics** allow autoscaling pods using external or application-specific performance indicators.
+* The **kubelet** typically handles standard CPU and memory metrics, while **custom metrics** come from external or application-defined sources.
+
+
 #### Why Custom Metrics?
 
 Applications might have **business-specific or app-specific metrics** that reflect actual load better than CPU/memory. For example:
