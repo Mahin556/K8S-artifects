@@ -208,6 +208,16 @@ Now that we understand Kubernetes' **core and extended architecture**, our next 
 
 ---
 
+Openshift is distribution of Kubernetes
+
+You can use any CRI-compliant runtime with Kubernetes, as long as it adheres to the Container Runtime Interface (CRI) specifications. This flexibility allows you to choose a runtime like CRI-O, containerd, or others based on your specific performance, security, or workload requirements while ensuring seamless integration and compatibility with Kubernetes.
+
+There are various CNI plugins available, and you have the flexibility to choose one that suits your specific requirements-even when using different cloud providers. For example, you can use Cilium with Amazon EKS if the default AWS VPC CNI plugin doesn't meet your application needs. However, it's important to note that cloud provider-specific plugins, like AWS VPC CNI, typically offer deeper integration and greater control over native cloud networking features. For instance, at the time of this recording, Pod Security Groups are exclusively supported by the AWS VPC CNI plugin.
+
+EKS-> pod security group EKS CNI plugin
+Always use Cloud provider CNI plugin
+---
+
 ## **References**   
 - [Container Network Interface (CNI) Specification](https://github.com/containernetworking/cni)
 - [Container Storage Interface (CSI) Specification](https://github.com/container-storage-interface/spec)
