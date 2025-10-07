@@ -43,7 +43,7 @@ This document provides an in-depth understanding of Kubernetes Pod lifecycle, st
 
 ## Pod Deletion and Termination Signals
 
-![Alt text](/images/22a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/22a.png)
 
 ### **What Happens When You Run `kubectl delete pod`?**
 
@@ -122,7 +122,7 @@ kubectl delete pod mypod --force=true --grace-period=0
 
 ## Restart Policies
 
-![Alt text](/images/22b.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/22b.png)
 
 Restart policies define how Kubernetes responds when containers within a pod terminate. These policies are defined at the pod level and apply to all containers within the pod. There are three types of restart policies:
 
@@ -258,7 +258,7 @@ In this example:
 
 ## Image Pull Policies
 
-![Alt text](/images/22c.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/22c.png)
 
 The `imagePullPolicy` in Kubernetes specifies how the container runtime pulls container images for pods. It governs whether Kubernetes should pull the image from a container registry or use a cached version already present on the node. This setting is vital for controlling how your deployments behave in development, testing, and production environments. Kubernetes supports three types of `imagePullPolicy`:
 
@@ -387,7 +387,7 @@ To avoid unexpected behavior (especially when tags like `latest` are reused or i
 
 ## Pod Lifecycle Phases
 
-![Alt text](/images/22d.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/22d.png)
 
 In Kubernetes, the lifecycle of a Pod is divided into distinct **phases** that represent its current state at a given point in time. These phases help administrators understand what the Pod is doing and whether it is functioning as expected.
 Here are the phases in detail:
