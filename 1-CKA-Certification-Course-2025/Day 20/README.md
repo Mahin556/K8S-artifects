@@ -39,7 +39,7 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 
 ## What is Scaling?
 
-![Alt text](/images/20a.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/20a.png)
 
 Scaling refers to **adjusting the resources** available to an application based on its **demand/load**. The key objective is to ensure the app has **enough resources** to handle current traffic, **without wasting resources** when demand is low.
 
@@ -74,7 +74,7 @@ Scaling refers to **adjusting the resources** available to an application based 
 
 ## Scaling Approaches
 
-![Alt text](/images/20b.png)
+![Alt text](/1-CKA-Certification-Course-2025/images/20b.png)
 **Both Scaling Types Have Two Approaches:**
 
 ### **Horizontal Scaling:**
