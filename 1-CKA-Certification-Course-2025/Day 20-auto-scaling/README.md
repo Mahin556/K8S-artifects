@@ -164,6 +164,8 @@ The **Horizontal Pod Autoscaler (HPA)** is a Kubernetes feature that **automatic
 - HPA continuously monitors the workload’s resource usage.
 - It **adjusts (scales up or scales down) the number of pod replicas** based on observed metrics.
 - It operates as a **control loop**, checking metrics at a regular interval (by default, **every 15 seconds**).
+- The kubelet-and by extension, cAdvisor-is also present on control plane nodes. While HPA typically won't scale pods on control plane nodes (since workloads should ideally not run there), cAdvisor still collects resource metrics for all containers running on the control plane, including system components and any workload pods if present. These metrics are exposed via the kubelet's cAdvisor API and are used by the Metrics Server. Consequently, they can be utilized for commands like kubectl top pods or for autoscaling decisions, though in practice, scaling applies to workloads running on worker nodes.
+
 
 ## Supported Workloads:
 
