@@ -694,6 +694,11 @@ Run:
 kubectl describe vpa nginx-vpa
 ```
 
+```bash
+kubectl describe pod <pod_name>
+```
+- Check-> VPA update the Request and limit.
+
 ### **Explaining Key Output:**
 
 ```bash
