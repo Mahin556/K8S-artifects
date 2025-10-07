@@ -728,6 +728,20 @@ Recommendation:
 
 👉 **Pod CPU/Memory will be adjusted toward the Target values.**
 
+* **Use Horizontal Pod Autoscaler (HPA)** for applications that can scale **horizontally**, meaning multiple replicas can run simultaneously to handle load.
+* **Use Vertical Pod Autoscaler (VPA)** to automatically adjust a container’s **CPU and memory requests/limits** for optimal performance.
+* **VPA is ideal** for applications that **cannot scale horizontally**, such as:
+
+  * **Stateful applications** (e.g., databases).
+  * **Single-instance workloads** that rely on maintaining state.
+* **Combining HPA and VPA** is possible but uncommon; it’s typically used in **special cases**.
+* **Example scenario – Batch Processing:**
+
+  * **VPA** dynamically tunes CPU and memory requests based on **job size**.
+  * **HPA** adjusts the number of pod replicas according to **queue length** or **job backlog**, ensuring efficient resource usage and workload handling.
+
+
+
 Here’s a **refined, crisp, and precise version** of your explanation, merging both paragraphs for better clarity and flow:
 
 
