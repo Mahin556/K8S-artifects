@@ -95,7 +95,7 @@ Scaling refers to **adjusting the resources** available to an application based 
 Pods scaling is only one side; the **underlying worker nodes must also scale** to accommodate pod demands.
 
 - **Automatic Node Scaling:**  
-  Use **Cluster Autoscaler** to dynamically scale node groups (node pools) based on pending pods.
+  Use **Cluster Autoscaler** to dynamically scale node groups (node pools-define configuration of nodes) based on pending pods.
 
 - **Advanced Option (AWS-specific):**  
   In Amazon EKS, **Karpenter** offers advanced, flexible, and faster node provisioning.
