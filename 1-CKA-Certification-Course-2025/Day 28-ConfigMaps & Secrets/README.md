@@ -51,6 +51,10 @@ In real-world Kubernetes deployments:
 - You may want to update configuration without rebuilding your container image.
 - You might need to inject configuration data via environment variables, CLI arguments, or mounted files.
 - We don't want to hardcode any thing any configuration in our application containers.
+- Decoupling
+- Prevent image updation again and again
+- Inject config data into app
+- Store non-sensitive configuration outside of pod in key-value pair.
 
 **ConfigMaps** allow you to **decouple configuration from your container images**, making your applications more portable and easier to manage.
 
@@ -68,6 +72,7 @@ Pods can consume ConfigMaps in three primary ways:
 
 > **Important:** ConfigMaps do not provide encoding. For sensitive information, use a **Secret** instead.
 
+![](/1-CKA-Certification-Course-2025/images/image4.png)
 
 
 **What are Environment Variables?**
@@ -120,7 +125,10 @@ spec:
 ```
 
 While this works, hardcoding environment variables is not scalable or reusable across environments.
+If you change a Value of Env and reapply it deloyment recreate a pod in rolling manner(default)
 
+Defining
+Injecting
 ---
 
 ## **Demo 1: Using ConfigMap as Environment Variables**
@@ -151,6 +159,7 @@ kubectl apply -f frontend-cm.yaml
 ```
 
 > **Note:** Always apply the **ConfigMap before the Deployment**, so that the pods can reference and consume the configuration data during startup.
+> Run sequence must correct.
 
 ---
 
@@ -224,6 +233,10 @@ APP=frontend
 ENVIRONMENT=production
 ```
 
+* If we change now in ConfigMap and reapply(configmap and pod) if it will not recreate a pods(pods have same age) to apply change(update):
+```bash
+kubectl rollout restart deployment demo1
+```
 ---
 
 **NOTE:** I forgot to cover this in the demo, but you can also **create a ConfigMap imperatively** using the `kubectl create configmap` command.  
@@ -267,6 +280,8 @@ For this demo, we’ll build on the `frontend-deploy` configuration introduced i
 
 - [Day 12 YouTube Video](https://www.youtube.com/watch?v=92NB8oQBtnc)
 
+- The config map as a volume mounted to the pod dynamically means if we change in config map we can see realtime change inside the pod(not need to recreate)
+
 ### Step 1: Modify ConfigMap to Include HTML File
 
 ```yaml
@@ -288,7 +303,7 @@ data:
 ```
 The `|` tells YAML:
 
-> “Treat the following lines as a **literal block of text**. Preserve all line breaks and indentation exactly as they appear.”
+> “Treat the following lines as a **literal block of text**. Preserve all line breaks and indentation exactly as they appear(formatting).”
 
 In YAML, the `|` symbol is called a **block scalar indicator** — specifically, it's used for **literal block style**.
 This is especially useful when you're writing multi-line values, such as **HTML**, **scripts**, or **configuration files** inside a YAML field.
@@ -358,7 +373,7 @@ volumes:
       name: frontend-cm
 ```
 
-Then **all the keys** in the ConfigMap (`APP`, `ENVIRONMENT`, `index.html`) will be mounted as **individual files** inside `/usr/share/nginx/html`.
+Then **all the keys** in the ConfigMap (`APP`, `ENVIRONMENT`, `index.html`) will be mounted(copied) as **individual files** inside `/usr/share/nginx/html`.
 
 So inside the container, you’d get:
 ```
@@ -567,6 +582,7 @@ Accessible to Pods via:
 
 > Note: By default, Kubernetes stores secrets unencrypted in `etcd`. It is recommended to enable encryption at rest for better security.
 
+![](/1-CKA-Certification-Course-2025/images/image5.png)
 ---
 
 ### **Important Distinction: Encoding vs. Encryption**
