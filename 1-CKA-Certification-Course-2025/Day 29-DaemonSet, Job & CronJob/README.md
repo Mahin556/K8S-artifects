@@ -24,6 +24,8 @@ If this **repository** helps you, give it a ⭐ to show your support and help ot
 
 ---
 
+- There is a taint applied on a control plane node that is no schedule.
+
 ## **Understanding DaemonSets in Kubernetes**
 
 ![Alt text](/1-CKA-Certification-Course-2025/images/29a.png)
@@ -34,6 +36,12 @@ Similarly, when nodes are removed, Kubernetes **garbage-collects** (deletes) the
 If you delete a Pod created by a DaemonSet manually, the **DaemonSet controller** will immediately **recreate** the Pod to maintain the desired state.
 
 Deleting a DaemonSet itself will clean up all the Pods it created.
+We can control weather to run it in control node or not
+kube-proxy ---> service pod networking(ensure route traffic to healty pod or node)
+frontend pod ---> dns of service --- coreDNS do a nameresolution ---> pod
+kubeproxy change the destination ip on request when traffic directed from service to pod
+
+kube-proxy --> daemonset -->control plane also(toleration)
 
 ---
 
@@ -312,6 +320,10 @@ kubectl delete pod <pod-name>
 kubectl get pods -o wide
 ```
 
+We can also delete the namespace:
+```bash
+kubectl delete namespace <namespace>
+
 You will see that **Kubernetes automatically recreates the missing Pod** on the same node.
 
 > This demonstrates that the **DaemonSet controller constantly monitors the cluster** and ensures that **the desired state is maintained** — one Pod on every node.
@@ -371,6 +383,8 @@ spec:
   ttlSecondsAfterFinished: 60
   # This field tells Kubernetes to automatically delete the Job object 60 seconds after it finishes (either success or failure).
   # Useful for keeping the cluster clean and avoiding accumulation of completed Jobs.
+  # You can freely delete the pod if it fail not worry about log we use daemonset to deploy a logging agent with send log yo centralize logging system from where you can see the logs
+  
   completions: 2  
   # Total number of successful Pod completions needed for the Job to succeed.
   # - If set to 1: Only one Pod needs to complete successfully for the Job to finish.
