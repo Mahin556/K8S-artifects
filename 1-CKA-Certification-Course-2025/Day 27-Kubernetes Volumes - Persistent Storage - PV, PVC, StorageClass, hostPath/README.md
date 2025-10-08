@@ -63,6 +63,8 @@ In-tree volume plugins were integrated directly into Kubernetes' codebase. Addin
 - `rbd` (Ceph RADOS Block Device)
 - `iscsi`, `fc` (Fibre Channel)
 
+- The way this storage system are used is upgraded using CSI drivers.
+
 **Note:** Most in-tree plugins are deprecated and replaced with CSI drivers.
 
 ---
@@ -76,6 +78,7 @@ To address the limitations of in-tree plugins, Kubernetes adopted the **Containe
 - **Faster development:** Features and fixes are delivered more quickly.
 - **Flexibility:** CSI supports advanced capabilities like snapshotting, resizing, cloning, and monitoring.
 - **Easy integration:** Drivers for custom use cases can be developed with ease.
+- Community develop the CSI driver
 
 ### Examples of CSI Drivers:
 - AWS EBS CSI Driver: `ebs.csi.aws.com`
@@ -95,7 +98,7 @@ To address the limitations of in-tree plugins, Kubernetes adopted the **Containe
 - Mounts a directory from the node directly into the pod.
 - Primarily used for testing or simple workloads.
 - In-tree only; there is no CSI implementation.
-- **Caution:** Unsuitable for production due to security risks and lack of scheduling guarantees.
+- **Caution:** Unsuitable for production due to security risks(malicious) and lack of scheduling guarantees.
 
 ### `local` Volumes
 - Mounts a physical disk attached to a node.
@@ -348,7 +351,7 @@ Hey you!!
 ```
 
 This confirms that both pods are using the same file from the host node via `hostPath`.
-
+- We can also check it bu manually scheduling it to other node and see new host path created.
 ---
 
 ### Persistent Volumes (PVs) & Persistent Volume Claims (PVCs)
@@ -358,6 +361,7 @@ This confirms that both pods are using the same file from the host node via `hos
 
 - **What is a PV?**  
   A PV is a piece of storage in your cluster that has been provisioned either manually by an administrator or dynamically using Storage Classes.
+  Logical Abstraction over a physical storage.
   
 - **Key Characteristics:**  
   PVs exist independently of Pod lifecycles and can be reused or retained even after the Pod is deleted. They have properties such as **capacity, access modes, and reclaim policies**.
@@ -372,6 +376,8 @@ This confirms that both pods are using the same file from the host node via `hos
   2. **Developer:** Creates a PVC in the Pod specification requesting specific storage attributes.  
   3. **Kubernetes:** Binds the PVC to a suitable PV, thereby making the storage available to the Pod.
 
+Dev(Container, pod) ---> K8S Admin(PV,PVC) ---> Storage Admin(Physical storage)
+PV ---> automate ---> Storage Classes
 
 **Pods rely on Node resources—such as CPU, memory, and network—to run containers.** On the other hand, when a Pod requires **persistent storage**, it uses a **PersistentVolumeClaim (PVC)** to request storage from a **PersistentVolume (PV)**, which serves as the **actual storage backend**. This separation of compute and storage allows Kubernetes to manage them independently, improving flexibility and scalability.
 
@@ -419,6 +425,8 @@ If a Pod in `app2-ns` tries to reference the same PVC, it will fail — because 
 - Once a PV is bound, its `claimRef` field is populated, and it cannot be claimed by any other PVC unless explicitly released.
 
 > **`claimRef`** is a field in a **PersistentVolume (PV)** that records which **PersistentVolumeClaim (PVC)** has successfully claimed it. It includes details like the PVC’s name and namespace. This field ensures that the PV is not mistakenly claimed by any other PVC, enforcing a **one-to-one binding** between the PV and its assigned PVC.
+
+- PVCs consume PVs
 
 ---
 
@@ -480,7 +488,12 @@ Because from `app2-ns`'s perspective, that PVC does not exist.
 #### **Access Modes in Kubernetes Persistent Volumes**
 
 Persistent storage in Kubernetes supports various access modes that dictate how a volume can be mounted. Access modes essentially govern how the volume is mounted across **nodes**, which is critical in clustered environments like Kubernetes.
- 
+
+once ---> block storage
+many ---> file storage
+
+- It should be same on both PV and PVC for bounding.
+
 
 | **Access Mode**          | **Description**                                                                                          | **Example Use Case**                                            | **Type of Storage & Examples** |
 |--------------------------|----------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|--------------------------------|
@@ -490,6 +503,7 @@ Persistent storage in Kubernetes supports various access modes that dictate how 
 | **ReadWriteOncePod (RWOP)** (Introduced in v1.29) | The volume can be mounted as read-write by **only one Pod across the entire cluster**.                 | Ensuring exclusive access to a volume for a single Pod, such as in tightly controlled workloads. | **Block Storage** (e.g., Amazon EBS with `ReadWriteOncePod` enforcement) |
 
 ---
+While there are exceptions, block storage is typically designed for single-system access, offering low-latency performance ideal for databases and high-throughput applications. On the other hand, file storage is generally intended for shared access across multiple systems, making it suitable for collaborative environments and workloads that require concurrent access. However, it's important to note that in some cases, block storage may be shared, and file storage may be used by a single system based on specific architecture or application needs.
 
 ### **Explanation of Storage Types**
 
@@ -532,7 +546,8 @@ Reclaim policies define what happens to a **PersistentVolume (PV)** when its bou
 
 #### **1. Delete (Common for Dynamically Provisioned Storage)**  
 - When the PVC is deleted, the corresponding PV and its underlying **storage resource** (e.g., cloud disk, block storage) are **automatically deleted**.  
-- This is useful in **cloud environments** where storage resources should be freed when no longer in use.  
+- This is useful in **cloud environments** where storage resources should be freed when no longer in use. 
+- Block storage 
 
 **🔹 Example Use Case:**  
 - **AWS EBS, GCP Persistent Disk, Azure Disk** – Storage dynamically provisioned via CSI drivers gets deleted along with the PV, preventing orphaned resources.  
@@ -544,6 +559,7 @@ Reclaim policies define what happens to a **PersistentVolume (PV)** when its bou
 - **The data is preserved**, and manual intervention is required to either:  
   - Delete and clean up the volume.  
   - Rebind it to another PVC by manually removing the claim reference (`claimRef`).  
+- File storage
 
 **🔹 Example Use Case:**  
 - **Auditing & Compliance:** Ensures data is retained for logs, backups, or forensic analysis.  
@@ -569,6 +585,8 @@ Reclaim policies define what happens to a **PersistentVolume (PV)** when its bou
 | **Retain** | Keeps PV and storage, requiring manual cleanup. | Backup, auditing, manual data recovery. | On-prem storage, long-term retention workloads. |
 | **Recycle (Deprecated)** | Cleans volume and makes PV available again. | (Not recommended) | Previously used in legacy systems. |
 
+![](/1-CKA-Certification-Course-2025/images/image.png)
+![](/1-CKA-Certification-Course-2025/images/image1.png)
 
 ---
 
@@ -746,6 +764,7 @@ spec:
 
 > **Key Point:**  
 > Since this PVC doesn’t explicitly specify a StorageClass, it will bind to a compatible PV if available. In this demo, the PV created above offers 5Gi, making it a suitable candidate for a 2Gi claim.
+But you can see PVC capacity 5Gi instead 2Gi.
 
 **Apply the PVC:**
 
@@ -821,6 +840,11 @@ After creating these resources, use the following commands to check that everyth
   ```
 
 By following these steps, you’ll see that the PVC is bound to the PV and the Pod successfully mounts the storage. This demo illustrates how the `Retain` reclaim policy preserves data on the PV and how the dynamic binding between PVCs and PVs works within Kubernetes.
+
+
+You cannot delete a PersistentVolume (PV) that is currently bound to a PersistentVolumeClaim (PVC), and you cannot delete a PVC that is actively in use by a Pod. -container
+Kubernetes prevents such deletions to ensure data integrity and avoid breaking workloads that rely on persistent storage.
+Deletion order Pod-->PVC--->PV
 
 ---
 
@@ -963,7 +987,8 @@ spec:
       persistentVolumeClaim:
         claimName: ebs-csi-pvc  # Links the volume to the PVC created earlier.
 ```
-
+![](/1-CKA-Certification-Course-2025/images/image2.png)
+![](/1-CKA-Certification-Course-2025/images/image3.png)
 ---
 
 #### **Key Takeaways**
@@ -1084,7 +1109,7 @@ Run the following commands to check the status of PVs and PVCs:
    NAME          STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
    example-pvc   Bound    pvc-24d1f4ee-d3f8-40eb-8120-21f232087a19   2Gi        RWO            standard       6m
    ```
-
+- Always create a PV with the Same size as PVC not diff
 ---
 
 ### **Key Takeaways**
@@ -1124,6 +1149,160 @@ Key concepts included:
 Understanding these storage options and their configurations is essential for effectively deploying and managing stateful applications in Kubernetes.
 
 ---
+
+Here’s a clear and complete comparison between **File Storage**, **Block Storage**, and **Object Storage** — explained in simple terms with examples 👇
+## 🧩 Overview
+
+| Type               | Storage Unit                   | Access Method          | Typical Use                           |
+| ------------------ | ------------------------------ | ---------------------- | ------------------------------------- |
+| **File Storage**   | Files (with directories)       | File system (NFS, SMB) | Shared file systems, user directories |
+| **Block Storage**  | Blocks (raw volumes)           | Low-level I/O access   | Databases, VMs, high-performance apps |
+| **Object Storage** | Objects (data + metadata + ID) | HTTP/REST API          | Backups, media, cloud-native apps     |
+
+---
+
+## 📁 1. **File Storage**
+
+### 🔹 Concept:
+
+* Stores data **as files** organized in **folders/directories**.
+* Works like how files are stored on your computer (hierarchical structure).
+
+### 🔹 Access:
+
+* Accessed via **file system protocols** such as:
+
+  * **NFS** (Network File System – Linux/Unix)
+  * **SMB / CIFS** (Windows)
+
+### 🔹 Characteristics:
+
+| Feature         | Description                                     |
+| --------------- | ----------------------------------------------- |
+| **Structure**   | Hierarchical (folders, subfolders, files)       |
+| **Access**      | Through file paths (`/home/user/docs/file.txt`) |
+| **Metadata**    | Limited (filename, size, permissions)           |
+| **Scalability** | Limited to one server or cluster                |
+| **Performance** | Good for shared files, slower for large data    |
+| **Examples**    | NFS, SMB, Amazon EFS, Google Filestore          |
+
+### 🔹 Best for:
+
+* Shared network drives
+* User home directories
+* Content management systems (CMS)
+* Development environments
+
+---
+
+## 🔲 2. **Block Storage**
+
+### 🔹 Concept:
+
+* Data stored in **fixed-size blocks** (e.g., 512B, 4KB).
+* Each block has an address, but **no metadata or file structure**.
+* The OS formats and manages it as a filesystem.
+
+### 🔹 Access:
+
+* Accessed at **low-level** via block devices (like disks).
+* Examples:
+
+  * `/dev/sda` in Linux
+  * iSCSI, Fibre Channel, NVMe over network
+
+### 🔹 Characteristics:
+
+| Feature         | Description                                    |
+| --------------- | ---------------------------------------------- |
+| **Structure**   | Raw blocks, no hierarchy                       |
+| **Access**      | By block address (via OS or application)       |
+| **Metadata**    | None (only OS knows file structure)            |
+| **Scalability** | Vertical (attached to one instance)            |
+| **Performance** | High IOPS and low latency                      |
+| **Examples**    | AWS EBS, Google Persistent Disk, iSCSI volumes |
+
+### 🔹 Best for:
+
+* Databases (MySQL, PostgreSQL, Oracle)
+* Virtual machine disks
+* Transaction-heavy workloads
+* Filesystems (ext4, XFS) built on top of it
+
+---
+
+## 🪣 3. **Object Storage**
+
+### 🔹 Concept:
+
+* Stores data as **objects** with:
+
+  * Data (the content)
+  * Metadata (custom + system)
+  * Unique ID (used for retrieval)
+
+* **Flat structure** (no folders) — all objects stored in a **bucket**.
+
+### 🔹 Access:
+
+* Not mounted to pod
+* Accessed via **HTTP/REST APIs**, not mounted as a filesystem.
+* Example API calls or SDKs:
+
+  * `PUT /bucket/object`
+  * `GET /bucket/object`
+
+### 🔹 Characteristics:
+
+| Feature         | Description                            |
+| --------------- | -------------------------------------- |
+| **Structure**   | Flat (no hierarchy)                    |
+| **Access**      | API-based (HTTP/S3)                    |
+| **Metadata**    | Rich and customizable                  |
+| **Scalability** | Infinitely scalable (horizontal)       |
+| **Performance** | High throughput, not low-latency       |
+| **Examples**    | Amazon S3, Google Cloud Storage, MinIO |
+
+### 🔹 Best for:
+
+* Cloud-native applications
+* Backups and archives
+* Media storage (images, videos)
+* Big Data, analytics data lakes
+
+---
+
+## ⚖️ Summary Comparison Table
+
+| Feature              | **File Storage**             | **Block Storage**               | **Object Storage**                |
+| -------------------- | ---------------------------- | ------------------------------- | --------------------------------- |
+| **Structure**        | Hierarchical (files/folders) | Blocks                          | Flat (objects)                    |
+| **Access Protocols** | NFS, SMB                     | iSCSI, FC                       | HTTP, REST, S3                    |
+| **Metadata Support** | Basic                        | None                            | Extensive (custom)                |
+| **Performance**      | Medium                       | High                            | High throughput (not low latency) |
+| **Scalability**      | Moderate                     | Limited                         | Massive (horizontal)              |
+| **Persistence**      | Yes                          | Yes                             | Yes                               |
+| **Use Case**         | Shared file access           | Databases, VMs                  | Backups, media, big data          |
+| **Example Services** | Amazon EFS, Azure Files      | AWS EBS, Google Persistent Disk | AWS S3, Azure Blob, MinIO         |
+
+---
+
+## 🧠 Analogy
+
+| Concept            | Example                                                    |
+| ------------------ | ---------------------------------------------------------- |
+| **File Storage**   | Like a shared **network drive** (Google Drive, NAS)        |
+| **Block Storage**  | Like a **raw hard disk** attached to your system           |
+| **Object Storage** | Like **cloud storage** (S3 bucket) with URLs for each file |
+
+---
+
+## 💬 Quick Mnemonic
+
+> **File = Folder-based**, Typically access by multiple system
+> **Block = Disk-based**, Typically access by single system
+> **Object = Cloud-based.**
+CIS driver available for file and block storage on both cloud and on-premises.
 
 ### **References**
 
