@@ -50,6 +50,7 @@ In real-world Kubernetes deployments:
 - Maintaining a large number of hardcoded environment variables in Pod specs can become unmanageable.
 - You may want to update configuration without rebuilding your container image.
 - You might need to inject configuration data via environment variables, CLI arguments, or mounted files.
+- We don't want to hardcode any thing any configuration in our application containers.
 
 **ConfigMaps** allow you to **decouple configuration from your container images**, making your applications more portable and easier to manage.
 
