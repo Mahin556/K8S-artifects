@@ -63,7 +63,7 @@ We need encryption to:
 
 
 **Examples of Symmetric Encryption Algorithms:**
-- **AES (Advanced Encryption Standard)** — the industry standard
+- **AES (Advanced Encryption Standard)** — the industry standard-128bit,192bit,256bit.
 - **ChaCha20** — optimized for low-power devices and mobile environments
 - **Blowfish**, **Twofish**, and **DES** (older or legacy)
 
