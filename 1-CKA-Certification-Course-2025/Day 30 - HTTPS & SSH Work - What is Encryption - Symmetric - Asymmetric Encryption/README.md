@@ -175,7 +175,7 @@ When we talk about encryption in cloud and Kubernetes environments, it typically
 
 This protects data **while it's moving** — between:
 - Client and server (e.g., your browser and GitHub.com)
-- Pod to Pod communication
+- Pod to Pod communication(using service mesh by mTLS)
 - Kubernetes components (like kubelet <-> kube-apiserver)
 
 **How it's implemented:**
@@ -295,6 +295,60 @@ Asymmetric encryption is used for **identity verification and secure key exchang
 Here are some common extensions used for **public** and **private keys**:
 - **Public Key Files**: `.pub`, `.crt`, `.cer`, `.pem`, `.der`
 - **Private Key Files**: `.key`, `.pem`, `.ppk`, `.pfx`, `.der`
+
+```bash
+ssh-keygen -h
+ssh-keygen
+```
+```bash
+.gitignore
+  *.key
+  *.keys
+  *.priv
+  *.rsa
+  *.key.json
+
+  .env
+  .env.production
+  *.ssh
+  *.ssh-key
+
+  .key-mrc
+
+  ## Certificate Authority
+  *.ca
+
+  ## Certificate
+  *.crt
+
+  ## Certificate Sign Request
+  *.csr
+
+  ## Certificate
+  *.der 
+
+  ## Key database file
+  *.kdb
+
+  ## OSCP request data
+  *.org
+
+  ## PKCS #12
+  *.p12
+
+  ## PEM-encoded certificate data
+  *.pem
+
+  ## Random number seed
+  *.rnd
+
+  ## SSLeay data
+  *.ssleay
+
+  ## S/MIME message
+  *.smime
+```
+- https://gist.github.com/sambacha/90a5fab2342743e2c8eccf8424aaa45c
 
 The most commonly used extensions for **SSH keys** are `.pub` for public keys and `.key` for private keys. For certificates in the SSL/TLS world, `.crt` and `.pem` are frequently used.
 
