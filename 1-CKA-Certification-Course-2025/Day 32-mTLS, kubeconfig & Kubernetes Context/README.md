@@ -53,6 +53,8 @@ When working with Kubernetes, especially in environments that involve multiple c
 
 In this section, we’ll dive into what the kubeconfig file is, why it matters, how Kubernetes contexts help users like Seema manage multiple clusters, and how all of this ties into the broader concept of **mutual TLS (mTLS)** in Kubernetes.
 
+In TLS,mTLS server always prove there identity first
+
 ---
 
 ## Kubeconfig and Kubernetes Context
