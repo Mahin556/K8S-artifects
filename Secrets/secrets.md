@@ -1,14 +1,9 @@
 
 ### 1. What is a Kubernetes Secret?
 
-* A **Secret** stores sensitive information such as:
-
-  * Passwords
-  * API keys
-  * TLS certificates
-  * Docker registry credentials
-* Unlike ConfigMaps, Secrets are **base64-encoded** for safer handling.
-
+* A Kubernetes Secret is an object to store sensitive data, like passwords, tokens, Docker registry credentials, or certificates.
+* Stored in base64-encoded form (not encrypted by default).
+* Can be made more secure with Encryption at Rest or external vault integration (e.g., HashiCorp Vault, AWS KMS).
 ---
 
 ### 2. Types of Secrets
@@ -37,6 +32,10 @@ From the screenshot, `kubectl create secret` supports:
   kubectl create secret generic mysecret \
     --from-file=./username.txt \
     --from-file=./password.txt
+
+  kubectl create secret generic tls-secret \
+  --from-file=tls.crt=./mycert.crt \
+  --from-file=tls.key=./mykey.key
   ```
 
 * **From a directory** (each file becomes a key):
@@ -45,6 +44,17 @@ From the screenshot, `kubectl create secret` supports:
   kubectl create secret generic mysecret --from-file=./secrets/
   ```
 
+* **From YAML manifest**:
+  ```bash
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: my-manual-secret
+  type: Opaque
+  data:
+    username: YWRtaW4=          # base64 of 'admin'
+    password: c2VjcmV0cGFzcw==  # base64 of 'secretpass'
+  ```
 ---
 
 ### 4. Viewing the Secret
@@ -71,28 +81,69 @@ From the screenshot, `kubectl create secret` supports:
 
 * Mount as environment variable:
 
-  ```yaml
-  apiVersion: v1
-  kind: Pod
-  metadata:
-    name: secret-pod
-  spec:
-    containers:
-    - name: mycontainer
-      image: nginx
-      env:
-      - name: USER_NAME
-        valueFrom:
-          secretKeyRef:
-            name: mysecret
-            key: username
-  ```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-demo
+spec:
+  containers:
+  - name: demo-container
+    image: nginx:latest
+    env:
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: username
+    - name: DB_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: password
+```
+```bash
+kubectl exec -it secret-demo -- env | grep DB_
+# Output:
+# DB_USERNAME=admin
+# DB_PASSWORD=secretpass
+```
 
 * Mount as volume:
 
-  ```yaml
-  volumes:
+```yaml
+volumes:
   - name: secret-volume
     secret:
-      secretName: mysecret
-  ```
+      secretName: db-secret
+volumeMounts:
+  - name: secret-volume
+    mountPath: /etc/secret
+    readOnly: true
+```
+
+### 6.Updating a Secret
+```bash
+kubectl create secret generic db-secret \
+  --from-literal=username=demo-user \
+  --from-literal=password=newSecretPass \
+  --dry-run=client -o yaml | kubectl apply -f -
+```
+- Pods do not automatically reload updated Secrets if consumed as env vars or command-line arguments.
+
+##### Option 1 — Manual rolling restart:
+```bash
+kubectl rollout restart deployment <deployment-name>
+```
+
+##### Option 2 — Hash annotation trick:
+Annotate your Pod template with a hash of the Secret:
+```bash
+metadata:
+  annotations:
+    secret-hash: "<sha256-of-secret-data>"
+```
+When Secret changes, hash changes → triggers new rollout automatically.
+
+### References:
+- https://www.tutorialspoint.com/kubernetes/kubernetes_monitoring.htm
