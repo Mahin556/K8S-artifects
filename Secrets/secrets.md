@@ -1,8 +1,8 @@
 
 ### 1. What is a Kubernetes Secret?
 
-* A Kubernetes Secret is an object to store sensitive data, like passwords, tokens, Docker registry credentials, or certificates.
-* Stored in base64-encoded form (not encrypted by default).
+* A Kubernetes Secret is an object to store sensitive data, like passwords, API tokens, Docker registry credentials, SSH keys, or certificates.
+* Stored in base64-encoded form (not encrypted by default)in rest(etcd).
 * Can be made more secure with Encryption at Rest or external vault integration (e.g., HashiCorp Vault, AWS KMS).
 ---
 
@@ -10,9 +10,11 @@
 
 From the screenshot, `kubectl create secret` supports:
 
+* **Opaque**(default)
 * **generic** → Create from literal values, files, or directories.
 * **docker-registry** → Store credentials for pulling private images.
 * **tls** → Store TLS certificates (cert + private key).
+* Custom types
 
 ---
 
@@ -45,7 +47,7 @@ From the screenshot, `kubectl create secret` supports:
   ```
 
 * **From YAML manifest**:
-  ```bash
+```yaml
   apiVersion: v1
   kind: Secret
   metadata:
@@ -54,7 +56,14 @@ From the screenshot, `kubectl create secret` supports:
   data:
     username: YWRtaW4=          # base64 of 'admin'
     password: c2VjcmV0cGFzcw==  # base64 of 'secretpass'
-  ```
+```
+```bash
+  # Encode
+  echo "test@123" | base64
+  # Decode
+  echo "dHJhaW53aXRoc2h1YmhhbQ==" | base64 --decode
+```
+
 ---
 
 ### 4. Viewing the Secret
@@ -120,6 +129,21 @@ volumeMounts:
   - name: secret-volume
     mountPath: /etc/secret
     readOnly: true
+
+---
+volumes:
+  - name: config-volume
+    configMap:
+      name: app-config
+  - name: secret-volume
+    secret:
+      secretName: my-secret
+
+volumeMounts:
+  - name: config-volume
+    mountPath: /etc/config
+  - name: secret-volume
+    mountPath: /etc/secret
 ```
 
 ### 6.Updating a Secret
@@ -145,5 +169,10 @@ metadata:
 ```
 When Secret changes, hash changes → triggers new rollout automatically.
 
+```yaml
+
+
 ### References:
 - https://www.tutorialspoint.com/kubernetes/kubernetes_monitoring.htm
+- https://muditmathur121.medium.com/mastering-configmaps-and-secrets-in-kubernetes-16df7ad514f6
+- https://medium.com/@ravipatel.it/introduction-kubernetes-configmaps-and-secrets-with-example-a2987076065e

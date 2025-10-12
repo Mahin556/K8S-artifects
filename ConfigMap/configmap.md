@@ -1,26 +1,38 @@
 # 🔹 What is a ConfigMap?
 
 * A **ConfigMap** is a Kubernetes API object used to store **non-confidential configuration data** in key-value pairs.
+
 * ConfigMaps allow you to keep config values separate(decouple) from your code and container images. 
   * Externalize environment-specific settings, such as a database hostname, URLs, settings or IP address, without modifying the container image.plane-text in etcd if anyone gain access to etcd they see info in plane text.
   * make application portable and easy to manage accross different environment.
-* Not used to store sensitive data  because it store data in 
+
 * Often used alongside **Secrets** (which are for sensitive data).
+
 * Built-in Kubernetes API
+
 * `Non-sensitive` key-value config data. 
+
 * Values can be `strings` or `Base64-encoded binary data`.
+
 * Save on `cluster(etcd)`
+
 * Injected as as:
   * `environment variables`
   * `command line arguments`
   * `filesystem volumes(mount file)`
   <br>
+
 * Application can take value from the Environment variable and from the file.
+
 * Prevent image rebuilding.
+
 * Non-Sensitive data
+
 * Store relatively small amounts of simple data.
+
 * The total size of a ConfigMap object must be less than `1 MiB`. To store more data we should split your configuration into multiple `ConfigMaps` or consider using a `separate database` or `key-value store`.
 * For example, a system that connects to a database can retrieve the database server address from a ConfigMap instead of hardcoding it. 
+
 * Application must be designed to use the configuration from the environment variable and file.
 * We can directly change the data from the `etcd` but in real world we change it using Kubernetes API server and Kubectl to create and manage your ConfigMaps.
 config map ---> `DATABASE_HOST`
@@ -31,7 +43,87 @@ Can be consumed by Pods via:
   Command-line arguments
   Volume mounts
 
+Value ---> Data
+Key ---> Refer to data
+
+* Using imparative command we can create a config map from 2 ways:
+  `--from-file` (if the source is a file/directory)
+  `--from-literal` (if the source is a key-value pair)
+
 ---
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metedata:
+  name: <configMap_name>
+data:
+  <key1>: <value1>
+  <key2>: <value2>
+        :
+  <keyM>: <valueM>
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: <pod_name>
+  labels:
+    <key1>: <value1>
+    <key2>: <value2>
+           :
+           :
+    <keyN>: <valueN>
+spec:
+  containers:
+    - name: <container_name>
+      image: <image>
+      envFrom:
+      - configMapRef:
+          name: <configMap_name>
+--- 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: <pod_name>
+  labels:
+    <key1>: <value1>
+    <key2>: <value2>
+           :
+           :
+    <keyN>: <valueN>
+spec:
+  containers:
+    - name: <container_name>
+      image: <image>
+      env:
+        - name: <environment_variable_name>
+          valueFrom:
+            configMapKeyRef:
+              name: <configMap_name>
+              key: <key_in_configMap>
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: <pod_name>
+  labels:
+    <key1>: <value1>
+    <key2>: <value2>
+           :
+           :
+    <keyN>: <valueN>
+spec:
+  containers:
+    - name: <container_name>
+      image: <image>
+      volumeMounts:
+        - name: <volume_name>
+          mountPath: <mount_path>
+  volumes:
+    - name: <volume_name>
+      configMap:
+        name: <configMap_name>
+```
 
 # 🔹 Ways to Create a ConfigMap
 
@@ -62,6 +154,7 @@ database:
 
 ```bash
 kubectl create configmap app-config --from-file=app-config.yaml
+kubectl create configmap my-config --from-file=config.json --from-file=app.properties
 ```
 ```yaml
 apiVersion: v1
@@ -248,6 +341,27 @@ controlplane:~$ kubectl get configmap demo-config -o jsonpath='{.data}'|jq
   "environment": "production"
 }
 ```
+---
+
+```bash
+kubectl get configmap app-config-map -o yaml
+```
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config-map
+data:
+  app.properties: |
+    APP_MODE=prod
+    APP_PORT=8080
+  db.conf: |
+    DB_USER=root
+    DB_PASS=secret
+  logging.yaml: |
+    level: INFO
+    output: /var/log/app.log
+```
 
 ---
 
@@ -372,17 +486,6 @@ kubectl exec -it <pod> -- printenv FIRST_NAME
 
 ---
 
-# 🔹 Best Practices
-
-* ✅ Use **ConfigMap for non-sensitive data**, Secrets for sensitive.
-* ✅ Use `envFrom` for simple apps, **volumes** for complex configs.
-* ✅ Watch out: Environment variables **don’t auto-update** when ConfigMap changes.
-* ✅ Use ConfigMaps with **Deployments** to avoid hardcoding configs.
-* ✅ Version your ConfigMaps (e.g., `app-config-v1`, `app-config-v2`) for controlled rollouts.
-* ✅ Mount config files instead of putting huge configs as env vars.
-
----
-
 # 🔹 Advanced Usage
 
 * **Immutable ConfigMaps**: Prevent accidental updates:
@@ -464,6 +567,85 @@ data:
     line2
     line3
 ```
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  migration.properties: |
+    source.env=dev
+    source.folder=test
+    target.env=reports_dir
+    target.folder=reports_dir
+```
+```bash
+$ cat <<EOF > migration.properties
+source.env=dev
+source.folder=test
+target.env=reports_dir
+target.folder=reports_dir
+EOF
+
+$ kubectl create configmap app-config --from-file=envs/migration.properties
+```
+* Injecting all the ENVs
+```yaml
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: demo-app
+spec:
+  containers:
+  - name: demo-con
+    image: busybox
+    envFrom:
+    - configMapRef:
+        name: app-config
+```
+* Injecting single the ENVs
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_COLOR: RED
+  ENV: demo
+---
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: demo-app
+spec:
+  containers:
+  - name: demo-con
+    image: busybox
+    env:
+    - name: APP_CONFIG
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: APP_COLOR
+```
+* Inject environment data as a file in a volume.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata: 
+  name: demo-app
+spec:
+  volumes:
+  - name: app-config-vol
+    configMap:
+      name: app-config
+  containers:
+  - name: demo-con
+    image: busybox
+    volumeMounts:
+    - name: app-config-vol
+      mountPath: /demo
+```
 
 ### `binaryData` Field
 * Stores binary data encoded as base64.
@@ -526,9 +708,18 @@ spec:
   * app_name → /config/app_name
   * config.bin → /config/config.bin (decoded automatically)
 
+* No built-in version control (use Git for that).
+* Config errors can cause Pod startup issues (e.g., CreateContainerConfigError).
+
 
 
 ### References:
 - https://spacelift.io/blog/kubernetes-configmap
 - https://www.tutorialspoint.com/kubernetes/kubernetes_monitoring.htm
 - https://www.geeksforgeeks.org/devops/kubernetes-configmap/
+- https://www.geeksforgeeks.org/cloud-computing/kubernetes-create-config-map-from-files/
+- https://www.geeksforgeeks.org/devops/kubernetes-create-configmap-from-yaml-file/
+- https://www.geeksforgeeks.org/devops/kubernetes-config-map-from-directory/
+- https://www.geeksforgeeks.org/devops/kubernetes-injecting-configmap-as-files/
+- https://www.groundcover.com/blog/kubernetes-configmap
+- https://yuminlee2.medium.com/kubernetes-configmaps-fee26f4c3ccf

@@ -4,6 +4,7 @@
 * Can't modify
 * make sure consistency and no alteration.
 * Recreate to change value.
+* Attempts to modify it will fail.
 * Prevents accidental changes that could destabilize your application.
 
 ### 🗂️ Step 1 — Create an Immutable ConfigMap
@@ -186,3 +187,4 @@ That allows controlled, predictable updates — without mutating the existing Co
 ### References:
 - https://spacelift.io/blog/kubernetes-configmap
 - https://www.geeksforgeeks.org/devops/kubernetes-configmap/
+- https://www.groundcover.com/blog/kubernetes-configmap

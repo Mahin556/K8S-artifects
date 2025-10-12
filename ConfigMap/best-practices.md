@@ -9,7 +9,7 @@
 
 * **Maximum size:** 1 MiB (total of all keys and values).
 * Large configurations can degrade **etcd performance**.
-* For bigger files, use **Volumes** (PersistentVolume or ConfigMap volume) instead.
+* For bigger files, use **Volumes** (PersistentVolume or ConfigMap volume) instead putting huge configs as env vars.
 
 ---
 
@@ -64,6 +64,8 @@ immutable: true
 * If using mounted volumes, updates propagate automatically but not instantly.
 * Plan for **Pod restarts** or rolling updates if your app relies on ConfigMap values as env vars or command-line arguments.
 
+
+* Use `envFrom` for simple apps, **volumes** for complex configs.
 ---
 
 ### ⚡ **Summary Table**
