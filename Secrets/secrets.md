@@ -1,10 +1,16 @@
 
 ### 1. What is a Kubernetes Secret?
 
-* A Kubernetes Secret is an object to store sensitive data, like passwords, API tokens, Docker registry credentials, SSH keys, or certificates.
+* A Kubernetes Secret is an object to store sensitive data, like passwords, API tokens, Docker registry credentials, OAuth tokens, SSH keys, or certificates.
+* native/built-in k8s object
 * Stored in base64-encoded form (not encrypted by default)in rest(etcd).
 * Can be made more secure with Encryption at Rest or external vault integration (e.g., HashiCorp Vault, AWS KMS).
 * kubernetes API object
+* Keep sensitive information outside of application code.
+* Flexiblity --> prevent multiple image build.
+* Environement 
+* Can be used in multiple pods.
+* By using Secrets, you avoid embedding credentials directly in application code or container images — drastically reducing the risk of accidental exposure.
 
 #### Secure or not
 - Store data in base64-encoded form not encrypted.
@@ -23,18 +29,6 @@
 
 ---
 
-### 2. Types of Secrets
-
-From the screenshot, `kubectl create secret` supports:
-
-* **Opaque**(default)
-* **generic** → Create from literal values, files, or directories.
-* **docker-registry** → Store credentials for pulling private images.
-* **tls** → Store TLS certificates (cert + private key).
-* Custom types
-
----
-
 ### 3. Creating a Generic Secret
 
 * **From literal values**:
@@ -48,6 +42,9 @@ From the screenshot, `kubectl create secret` supports:
 * **From a file**:
 
   ```bash
+  echo -n 'my-user' > username.txt
+  echo -n 'my-password' > password.txt
+
   kubectl create secret generic mysecret \
     --from-file=./username.txt \
     --from-file=./password.txt
@@ -57,7 +54,7 @@ From the screenshot, `kubectl create secret` supports:
   --from-file=tls.key=./mykey.key
   ```
 
-* **From a directory** (each file becomes a key):
+* **From a directory/multiple files** (each file becomes a key):
 
   ```bash
   kubectl create secret generic mysecret --from-file=./secrets/
@@ -74,6 +71,8 @@ From the screenshot, `kubectl create secret` supports:
     username: YWRtaW4=          # base64 of 'admin'
     password: c2VjcmV0cGFzcw==  # base64 of 'secretpass'
 ```
+
+* **Encoding and Decoding a data(base64-encoded format)**
 ```bash
   # Encode
   echo "test@123" | base64
@@ -100,12 +99,20 @@ From the screenshot, `kubectl create secret` supports:
   ```bash
   kubectl get secret mysecret -o jsonpath='{.data.username}' | base64 --decode
   ```
+* Edit secret 
+  ```bash
+  kubectl edit secret my-secret
+  ```
+* Delete Secret
+  ```bash
+  kubectl delete secret my-secret
+  ```
 
 ---
 
 ### 5. Using Secret in a Pod
 
-* Mount as environment variable:
+* **Mount as environment variable**:
 
 ```yaml
 apiVersion: v1
@@ -134,34 +141,134 @@ kubectl exec -it secret-demo -- env | grep DB_
 # DB_USERNAME=admin
 # DB_PASSWORD=secretpass
 ```
+Environment variables can be viewed through `kubectl describe pod`, so avoid using them for highly sensitive credentials. Prefer volume mounts where possible.
 
-* Mount as volume:
-
+* **Injecting a Secret Entirely (Also Possible, But Risky)**
 ```yaml
-volumes:
-  - name: secret-volume
-    secret:
-      secretName: db-secret
-volumeMounts:
-  - name: secret-volume
-    mountPath: /etc/secret
-    readOnly: true
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secret-demo
+spec:
+  containers:
+  - name: demo-container
+    image: nginx:latest
+    envFrom:
+    - secretRef:
+        name: app-secret
+```
+  * it’s not recommended for most production use cases.
+
+      | **Reason**                                   | **Explanation**                                                                                                                                         |
+    | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | **Environment variables are easily exposed** | Any process in the Pod can print its environment variables (`env` command), which can expose secrets accidentally.                                      |
+    | **Logged or dumped accidentally**            | Environment variables often get captured in logs, debugging outputs, or crash dumps (core dumps), leaking sensitive data.                               |
+    | **In-memory persistence**                    | Environment variables remain in the process memory space, making them harder to manage or revoke securely.                                              |
+    | **Auditing and rotation are harder**         | If a Secret value changes, environment variables won’t auto-update; the Pod must be restarted. Mounted Secret volumes, however, *update automatically*. |
+    | **Least privilege principle**                | If you inject the entire Secret, you’re giving the container all keys even if it only needs one.                                                        |
+
+<br>
+
+* **Mount as volume**:
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: secret-test-pod
+    labels:
+      name: secret-test
+  spec:
+    volumes:
+      - name: secret-volume
+        secret:
+          secretName: ssh-key-secret
+    containers:
+      - name: ssh-test-container
+        image: mySshImage
+        volumeMounts:
+          - name: secret-volume
+            readOnly: true
+            mountPath: "/etc/secret-volume"
+  
+  ---
+  volumes:
+    - name: config-volume
+      configMap:
+        name: app-config
+    - name: secret-volume
+      secret:
+        secretName: my-secret
+
+  volumeMounts:
+    - name: config-volume
+      mountPath: /etc/config
+    - name: secret-volume
+      mountPath: /etc/secret
+  ```
+<br>
+
+* **Optional Secrets**
+  You can mark a Secret as optional. If the Secret does not exist, Kubernetes will not fail Pod creation.
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: mypod
+  spec:
+    containers:
+    - name: mycontainer
+      image: nginx
+      volumeMounts:
+      - name: foo
+        mountPath: "/etc/foo"
+        readOnly: true
+    volumes:
+    - name: foo
+      secret:
+        secretName: mysecret
+        optional: true
+  ```
+  This is useful for workloads that can run even without specific credentials or configuration data.
+
+<br>
+
+* **Container Image Pull Secrets**
+  When pulling images from a private container registry, use image pull Secrets to provide authentication credentials.
+  ```yaml
+  apiVersion: v1
+  kind: Pod
+  metadata:
+    name: mypod
+  spec:
+    containers:
+    - name: mycontainer
+      image: myprivateimage
+    imagePullSecrets:
+    - name: my-docker-config-secret
+  ```
+  The Secret must be of type kubernetes.io/dockerconfigjson or kubernetes.io/dockercfg.
+
+<br>
+
+* **Immutable Secrets**
+  From `Kubernetes v1.19` onward, you can mark Secrets as immutable to prevent accidental updates and improve API server performance.
+  ```yaml
+  apiVersion: v1
+  kind: Secret
+  metadata:
+    name: my-secret
+  data:
+    username: YWRtaW4=
+    password: cGFzc3dvcmQ=
+  immutable: true
+  ```
+  Once a Secret is immutable, you can only delete and recreate it — you cannot modify it.
 
 ---
-volumes:
-  - name: config-volume
-    configMap:
-      name: app-config
-  - name: secret-volume
-    secret:
-      secretName: my-secret
 
-volumeMounts:
-  - name: config-volume
-    mountPath: /etc/config
-  - name: secret-volume
-    mountPath: /etc/secret
-```
+![](/images/image.png){:height="560px" width="660px"}.
+
+---
 
 ### 6.Updating a Secret
 ```bash

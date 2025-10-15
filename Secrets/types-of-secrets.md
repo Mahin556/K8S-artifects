@@ -24,7 +24,10 @@ Kubernetes Secrets are specialized objects designed to **store sensitive data se
 
 **Structure Example:**
 ```bash
-kubectl create secret generic mysecret
+kubectl create secret generic my-opaque-secret \
+  --from-literal=username=admin \
+  --from-literal=password=1f2d1e2e67df
+
 ```
 ```yaml
 apiVersion: v1
@@ -51,7 +54,13 @@ data:
 
 * `kubernetes.io/service-account.name` annotation must reference an existing service account.
 
-**Structure Example:**
+* As of Kubernetes v1.22+, you should use TokenRequest API for short-lived tokens instead of static tokens.
+
+```bash
+kubectl create secret generic my-sa-token-secret \
+  --type=kubernetes.io/service-account-token \
+  --from-literal=extra=bar
+```
 
 ```yaml
 apiVersion: v1
@@ -62,6 +71,18 @@ metadata:
     kubernetes.io/service-account.name: my-service-account
 type: kubernetes.io/service-account-token
 ```
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-sa-token-secret
+  annotations:
+    kubernetes.io/service-account.name: "my-service-account"
+type: kubernetes.io/service-account-token
+data:
+  extra: YmFyCg==
+```
+* Auto-generated legacy tokens (pre-v1.24) are now invalidated automatically after a year and cleaned up.
 
 **Use Case:**
 
@@ -88,6 +109,17 @@ metadata:
 type: kubernetes.io/dockerconfigjson
 data:
   .dockerconfigjson: <base64-encoded-docker-config>
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: my-docker-config-secret
+type: kubernetes.io/dockerconfigjson
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2V4YW1wbGUvdjEvIjp7ImF1dGgiOiJvcGVuc2VzYW1lIn19fQo=
+
 ```
 ```yaml
 apiVersion: v1
@@ -120,6 +152,12 @@ kubectl create secret docker-registry my-docker-secret \
   --docker-username=<username> \
   --docker-password=<password> \
   --docker-email=<email>
+
+kubectl create secret docker-registry my-docker-config-secret \
+  --docker-server=my-registry.example.com \
+  --docker-username=my-username \
+  --docker-password=my-password \
+  --docker-email=my-email@example.com
 ```
 
 ---
@@ -133,7 +171,12 @@ kubectl create secret docker-registry my-docker-secret \
 * `username` → Username for authentication.
 * `password` → Password or token.
 
-**Structure Example:**
+```bash
+kubectl create secret generic my-basic-auth-secret \
+  --type=kubernetes.io/basic-auth \
+  --from-literal=username=admin \
+  --from-literal=password=t0p-Secretstore
+```
 
 ```yaml
 apiVersion: v1
@@ -168,8 +211,12 @@ stringData:
 
 * `ssh-privatekey` → Private key used for SSH authentication.
 
-**Structure Example:**
 
+```bash
+kubectl create secret generic my-ssh-auth-secret \
+  --type=kubernetes.io/ssh-auth \
+  --from-file=ssh-privatekey=path/to/private/key
+```
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -220,12 +267,17 @@ spec:
 ## 6. **TLS Secrets**
 
 * Used to store X.509 certificates and private keys for securing communication via TLS/SSL.
+* Commonly referenced by Ingress controllers.
 
 
 * `tls.crt` → The TLS certificate.
 * `tls.key` → The TLS private key.
 
-**Structure Example:**
+```bash
+kubectl create secret tls tls-secret \
+  --cert=path/to/cert/file \
+  --key=path/to/key/file
+```
 
 ```yaml
 apiVersion: v1
@@ -288,7 +340,14 @@ spec:
 * Typically created in `kube-system`.
 * Named like `bootstrap-token-<token-id>`.
 
-**Structure Example:**
+```bash
+kubectl create secret generic bootstrap-token-6emitej \
+  --type=bootstrap.kubernetes.io/token \
+  --from-literal=token-id=5emitej \
+  --from-literal=token-secret=kq4gihvszzgn1p0r \
+  --from-literal=usage-bootstrap-authentication=true \
+  --from-literal=usage-bootstrap-signing=true
+```
 
 ```yaml
 apiVersion: v1
@@ -314,6 +373,44 @@ stringData:
   token-secret: 0123456789abcdef
   usage-bootstrap-authentication: "true"
   usage-bootstrap-signing: "true"
+```
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bootstrap-token-6emitej
+  namespace: kube-system
+type: bootstrap.kubernetes.io/token
+data:
+  token-id: NWVtaXRq
+  token-secret: a3E0Z2lodnN6emduMXAwcg==
+  usage-bootstrap-authentication: dHJ1ZQ==
+  usage-bootstrap-signing: dHJ1ZQ==
+```
+```bash
+kubectl create secret generic bootstrap-token-6emitej \
+  --type=bootstrap.kubernetes.io/token \
+  --from-literal=auth-extra-groups=system:bootstrappers:kubeadm:default-node-token \
+  --from-literal=expiration=2020-09-13T04:39:10Z \
+  --from-literal=token-id=5emitej \
+  --from-literal=token-secret=kq4gihvszzgn1p0r \
+  --from-literal=usage-bootstrap-authentication=true \
+  --from-literal=usage-bootstrap-signing=true
+```
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: bootstrap-token-6emitej
+  namespace: kube-system
+type: bootstrap.kubernetes.io/token
+data:
+  auth-extra-groups: c3lzdGVtOmJvb3RzdHJhcHBlcnM6a3ViZWFkbTpkZWZhdWx0LW5vZGUtdG9rZW4=
+  expiration: MjAyMC0wOS0xM1QwNDozOToxMFo=
+  token-id: NWVtaXRq
+  token-secret: a3E0Z2lodnN6emduMXAwcg==
+  usage-bootstrap-authentication: dHJ1ZQ==
+  usage-bootstrap-signing: dHJ1ZQ==
 ```
 
 **Use Case:**
@@ -346,3 +443,4 @@ stringData:
 ### References:
 - https://spacelift.io/blog/kubernetes-secrets
 - https://www.geeksforgeeks.org/devops/kubernetes-secrets/
+- https://www.perfectscale.io/blog/kubernetes-secrets

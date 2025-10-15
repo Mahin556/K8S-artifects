@@ -1,3 +1,5 @@
+EKS-> https://devopscube.com/kubernetes-external-secrets-operator/
+
 # 🔐 How to Use Kubernetes External Secrets Operator (ESO)
 
 The **Kubernetes External Secrets Operator (ESO)** integrates external secrets management systems such as **AWS Secrets Manager**, **HashiCorp Vault**, **Google Secret Manager**, or **OpenBao** with Kubernetes.
@@ -322,5 +324,13 @@ kubectl get secret dev -o jsonpath='{.data.password}' | base64 -d
 * Enable **audit logs and encryption** in your secret manager.
 * Use GitOps (e.g., ArgoCD or Flux) to manage ESO manifests securely.
 
+| **Alternative**                              | **Description**                                          | **Benefits**                        |
+| -------------------------------------------- | -------------------------------------------------------- | ----------------------------------- |
+| **HashiCorp Vault**                          | Centralized secret management with fine-grained policies | Dynamic secrets, strong audit       |
+| **AWS Secrets Manager / GCP Secret Manager** | Cloud-managed secret stores                              | Key-level IAM, rotation, encryption |
+| **Secrets Store CSI Driver**                 | Mounts secrets from external providers as volumes        | Automatic sync and key filtering    |
+
+
 ### References:
 - https://spacelift.io/blog/kubernetes-secrets
+- https://medium.com/@ravipatel.it/mastering-kubernetes-secrets-a-comprehensive-guide-b0304818e32b

@@ -56,6 +56,9 @@ There are two main ways to provide Secret data:
 
 > ⚠️ When using `--from-literal`, escape special characters such as `$`, `\`, `*`, `=`, or `!` using single quotes.
 
+While kubectl is a quick way to create various types of Secrets, it’s best suited for development and testing.
+In production environments, consider using declarative manifest files or Kustomize — these approaches provide better security, traceability, and version control.
+
 ### Example: Create Secrets from Files
 
 First, create two files containing credentials:

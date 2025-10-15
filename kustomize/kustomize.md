@@ -1,0 +1,2 @@
+- https://devopscube.com/kustomize-tutorial/
+- https://devopscube.com/kuztomize-configmap-generators/
