@@ -1,3 +1,10 @@
+### References:
+- https://medium.com/@ravipatel.it/mastering-kubernetes-secrets-a-comprehensive-guide-b0304818e32b
+- https://www.perfectscale.io/blog/kubernetes-secrets
+- https://blog.gitguardian.com/how-to-handle-secrets-in-kubernetes/
+
+---
+
 ## 🔐 2️⃣ Use RBAC to Control Access to Kubernetes Secrets
 
 Even if your Secrets are encrypted at rest, they can still be **read by anyone with Kubernetes API access** if RBAC is not configured properly.
@@ -203,7 +210,3 @@ Now this Pod — and only this Pod — can access Secrets in the namespace accor
 | **ClusterRole/ClusterRoleBinding**   | Same, but across all namespaces                              |
 | **Best Practice**                    | Use least privilege, isolate namespaces, and audit regularly |
 
-
-### References:
-- https://medium.com/@ravipatel.it/mastering-kubernetes-secrets-a-comprehensive-guide-b0304818e32b
-- https://www.perfectscale.io/blog/kubernetes-secrets

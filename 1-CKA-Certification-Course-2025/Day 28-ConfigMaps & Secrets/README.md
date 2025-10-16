@@ -443,6 +443,243 @@ Apply:
 kubectl apply -f frontend-deploy.yaml
 ```
 
+* Difference Between items and subPath
+| Feature                        | `items`                                                                                                                    | `subPath`                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Used in**                    | Inside the `volumes:` definition                                                                                           | Inside the `volumeMounts:` definition                                                                   |
+| **Purpose**                    | Selects which keys from a ConfigMap (or Secret) to mount, and what filenames they should have inside the mounted directory | Mounts a **single file (or subdirectory)** from a volume into a specific file path inside the container |
+| **Mounts**                     | One or more **keys** as **files** inside a directory                                                                       | Exactly **one file or subdirectory** into a specific path                                               |
+| **Updates automatically**      | ✅ Yes — reflects ConfigMap changes dynamically                                                                             | ❌ No — not automatically updated; requires pod restart                                                  |
+| **Granularity**                | Controls which keys → which files                                                                                          | Controls where a specific file/subdir is mounted                                                        |
+| **Common use case**            | Mount only a few specific keys from a ConfigMap                                                                            | Mount a single key as a file over an existing file path                                                 |
+| **Defined in YAML**            | Under `volumes.configMap.items:`                                                                                           | Under `containers.volumeMounts[].subPath:`                                                              |
+| **Can you use both together?** | ✅ Yes — you can pick a key using `items`, then mount it precisely with `subPath`.                                          |                                                                                                         |
+
+
+##### Difference Between `items` and `subPath`
+
+| Feature                        | `items`                                                                                                                    | `subPath`                                                                                               |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Used in**                    | Inside the `volumes:` definition                                                                                           | Inside the `volumeMounts:` definition                                                                   |
+| **Purpose**                    | Selects which keys from a ConfigMap (or Secret) to mount, and what filenames they should have inside the mounted directory | Mounts a **single file (or subdirectory)** from a volume into a specific file path inside the container |
+| **Mounts**                     | One or more **keys** as **files** inside a directory                                                                       | Exactly **one file or subdirectory** into a specific path                                               |
+| **Updates automatically**      | ✅ Yes — reflects ConfigMap changes dynamically                                                                             | ❌ No — not automatically updated; requires pod restart                                                  |
+| **Granularity**                | Controls which keys → which files                                                                                          | Controls where a specific file/subdir is mounted                                                        |
+| **Common use case**            | Mount only a few specific keys from a ConfigMap                                                                            | Mount a single key as a file over an existing file path                                                 |
+| **Defined in YAML**            | Under `volumes.configMap.items:`                                                                                           | Under `containers.volumeMounts[].subPath:`                                                              |
+| **Can you use both together?** | ✅ Yes — you can pick a key using `items`, then mount it precisely with `subPath`.                                          |                                                                                                         |
+
+---
+
+##### Example: Using `items`
+
+Suppose your ConfigMap looks like this:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-cm
+data:
+  APP: frontend
+  ENVIRONMENT: production
+  index.html: "<h1>Welcome to Frontend</h1>"
+```
+
+##### Using `items` to select only `index.html`
+
+```yaml
+volumes:
+  - name: html-volume
+    configMap:
+      name: frontend-cm
+      items:
+        - key: index.html
+          path: index.html
+```
+
+##### Mount it inside container:
+
+```yaml
+volumeMounts:
+  - name: html-volume
+    mountPath: /usr/share/nginx/html
+```
+
+📁 Inside container:
+
+```
+/usr/share/nginx/html/index.html
+```
+
+✅ `items` lets you choose **which keys** become files in your mount.
+✅ `index.html` will update automatically if the ConfigMap changes.
+
+---
+
+##### Example: Using `subPath`
+
+Now, say you want to **replace only one file** inside the container (like the existing NGINX `index.html`) instead of mounting a whole directory.
+
+```yaml
+volumeMounts:
+  - name: html-volume
+    mountPath: /usr/share/nginx/html/index.html
+    subPath: index.html
+```
+
+This means:
+
+> “Mount the file corresponding to the `index.html` key in the ConfigMap, and place it exactly over `/usr/share/nginx/html/index.html`.”
+
+📁 Inside container:
+
+```
+/usr/share/nginx/html/index.html   ← from ConfigMap
+```
+
+✅ Useful when:
+
+* You only want **one file**, not the entire ConfigMap directory.
+* The target (`/usr/share/nginx/html/index.html`) is already a **file**.
+
+⚠️ Limitation:
+
+* The mounted file **does not auto-refresh** when the ConfigMap changes.
+* Pod restart is required to reflect updates.
+
+---
+
+##### Using Both Together
+
+You can combine both for precise control:
+
+```yaml
+volumes:
+  - name: html-volume
+    configMap:
+      name: frontend-cm
+      items:
+        - key: index.html
+          path: index.html
+
+volumeMounts:
+  - name: html-volume
+    mountPath: /usr/share/nginx/html/index.html
+    subPath: index.html
+```
+
+This:
+
+* Uses `items` to include only the `index.html` key.
+* Uses `subPath` to mount it specifically as `/usr/share/nginx/html/index.html`.
+
+---
+
+##### Visual Comparison
+
+```
+ConfigMap: frontend-cm
+├── APP
+├── ENVIRONMENT
+└── index.html
+```
+
+##### Using `items`
+
+```
+Mount → /usr/share/nginx/html/
+│
+├── index.html     ← Mounted (from ConfigMap)
+```
+
+###### Using `subPath`
+
+```
+Mount → /usr/share/nginx/html/index.html
+(index.html file directly replaces existing one)
+```
+
+---
+
+##### When to Use What
+
+| Situation                                                                               | Recommended Approach               |
+| --------------------------------------------------------------------------------------- | ---------------------------------- |
+| You want **all** ConfigMap keys as files                                                | Mount volume directly (no `items`) |
+| You want **only specific keys**                                                         | Use `items`                        |
+| You want to **replace a single existing file** (e.g., `/etc/nginx/conf.d/default.conf`) | Use `subPath`                      |
+| You need ConfigMap updates to auto-refresh                                              | Use `items` (don’t use `subPath`)  |
+| You mix static + dynamic content                                                        | Use both (`items` + `subPath`)     |
+
+
+#### Permissions
+* When you mount a Secret as a volume inside a Pod, each key inside the Secret becomes a file.
+
+* By default, those files get POSIX permissions 0644 (owner read/write, group read, others read).
+
+* You can customize this with the defaultMode field (e.g., 0400 = read-only for owner).
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      defaultMode: 0400
+```
+* The defaultMode: 0400 means:
+  * All files (keys from the Secret) under /etc/foo will have permissions set to readable only by the owner (root).
+  * So, when the container runs, /etc/foo/<keyname> files will each have mode `-r--------`.
+
+* You can override permissions per key if you want specific files to have different permissions. Example:
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+  - name: mypod
+    image: redis
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+  volumes:
+  - name: foo
+    secret:
+      secretName: mysecret
+      items:
+      - key: password
+        path: my-password
+        mode: 0600
+```
+* This sets /etc/foo/my-password to 0600, even if defaultMode was different.
+
+* **JSON caution**:
+  * JSON doesn’t support octal literals like 0400.
+  * In JSON, 0400 would be interpreted as decimal 400.
+  * To correctly specify file modes in JSON, you must use decimal equivalents:
+    * Octal 0400 → Decimal 256
+    * Octal 0600 → Decimal 384
+    * Octal 0644 → Decimal 420
+```json
+"secret": {
+  "secretName": "mysecret",
+  "defaultMode": 256
+}
+```
+
 ---
 
 ## **Step 3: Expose the Deployment using a NodePort Service**
@@ -656,6 +893,7 @@ data:
   # Values under the 'data:' section must be base64-encoded.
   # These can be referenced by Pods to inject as environment variables or mounted as files.
 ```
+* “User-defined” or “arbitrary” means you choose the keys and values yourself — they’re not pre-defined or required by the system.
 
 To generate the base64-encoded values:
 
@@ -677,6 +915,10 @@ Apply the Secret:
 
 ```bash
 kubectl apply -f frontend-secret.yaml
+
+controlplane:~$ kubectl get secret
+NAME              TYPE     DATA   AGE
+frontend-secret   Opaque   2      5s
 ```
 
 ---

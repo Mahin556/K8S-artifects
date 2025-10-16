@@ -1,3 +1,14 @@
+### References:
+- https://www.tutorialspoint.com/kubernetes/kubernetes_monitoring.htm
+- https://muditmathur121.medium.com/mastering-configmaps-and-secrets-in-kubernetes-16df7ad514f6
+- https://medium.com/@ravipatel.it/introduction-kubernetes-configmaps-and-secrets-with-example-a2987076065e
+- https://www.geeksforgeeks.org/devops/kubernetes-working-with-secrets/
+- https://www.geeksforgeeks.org/devops/kubernetes-secrets/
+- https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data
+- https://www.warp.dev/terminus/kubectl-get-secrets
+- https://blog.gitguardian.com/how-to-handle-secrets-in-kubernetes/
+
+---
 
 ### 1. What is a Kubernetes Secret?
 
@@ -11,6 +22,7 @@
 * Environement 
 * Can be used in multiple pods.
 * By using Secrets, you avoid embedding credentials directly in application code or container images — drastically reducing the risk of accidental exposure.
+* 
 
 #### Secure or not
 - Store data in base64-encoded form not encrypted.
@@ -80,6 +92,43 @@
   echo "dHJhaW53aXRoc2h1YmhhbQ==" | base64 --decode
 ```
 
+```bash
+# Create a new secret named mysecret with key1=supersecret
+  kubectl create secret generic mysecret --from-literal=key1=supersecret
+
+  # Create a new secret named mysecret with keys for each file in folder bar
+  kubectl create secret generic mysecret --from-file=path/to/bar
+
+  # Create a new secret named mysecret with specified keys instead of file names
+  kubectl create secret generic mysecret --from-file=ssh-privatekey=~/.ssh/id_rsa --from-file=ssh-publickey=~/.ssh/id_rsa.pub
+
+  # Create a new secret named mysecret with key1=supersecret and keys for each file in folder bar
+  kubectl create secret generic mysecret --from-literal=key1=supersecret --from-file=path/to/bar
+
+  # Create a new secret named mysecret from multiple literal values
+  kubectl create secret generic mysecret --from-literal=username=admin --from-literal=password='t0p-Secret'
+
+  # Create a secret from environment variables file
+  kubectl create secret generic mysecret --from-env-file=path/to/envfile
+
+  Options:
+      --append-hash=false: Append a hash of the secret to its name.
+      --dry-run='none': Must be "none", "server", or "client". If client strategy, only print the object that would be sent, without sending it. If server strategy, submit server-side request without persisting the resource.
+      --field-manager='kubectl-create': Name of the manager used to track field ownership.
+      --from-env-file='': Specify the path to a file to read lines of key=val pairs to create a secret.
+      --from-file=[]: Key files can be specified using their file path, or optionally with a key name using the key=path syntax. The key name must consist of alphanumeric characters, '-', '_' or '.'.
+      --from-literal=[]: Specify a key and literal value pair (e.g. mykey=somevalue) to include in the secret.
+      --save-config=false: If true, the configuration of the current object will be saved in its annotation.
+  -o, --output='': Output format. One of: json|yaml|name|go-template|go-template-file|template|templatefile|jsonpath|jsonpath-as-json|jsonpath-file.
+      --template='': Template string or path to template file to use when -o=go-template, -o=go-template-file, -o=template, or -o=templatefile.
+  -h, --help=false: help for generic
+
+Usage Examples:
+  kubectl create secret generic mysecret --from-literal=username=admin --from-literal=password=secret
+  kubectl create secret generic mysecret --from-file=config.json=/etc/config/config.json
+  kubectl create secret generic mysecret --from-env-file=.env
+```
+
 ---
 
 ### 4. Viewing the Secret
@@ -88,11 +137,31 @@
 
   ```bash
   kubectl get secrets
+  kubectl get secrets -o yaml
+  kubectl get secrets <secret_name …>
+  kubectl get secrets mysecret1 mysecret2
+  kubectl get secrets -l <label>=<value>
+  kubectl get secrets --show-labels
+  kubectl get secrets --field-selector=<field_name>=<field_value>
+  kubectl get secrets --field-selector=type=Opaque
+  kubectl get secrets --field-selector type=kubernetes.io/tls
+  kubectl get secrets -n <namespace>
+  kubectl get secrets --all-namespaces
+  kubectl get secrets -o jsonpath="<expression>"
+  kubectl get secrets -o jsonpath="<expression>"
+  kubectl get secrets <secret_name> -o jsonpath=’{.data.<field_name>}’ | base64 -d
+  kubectl get secrets --sort-by=<expression> #JSONPath expression
+  kubectl get secrets --sort-by=.metadata.name
+  kubectl get secrets -o custom-columns=<custom_column_name>:<expression>
+  kubectl get secrets -o custom-columns='NAME:.metadata.name,TYPE:type'
+  kubectl get secrets -o custom-columns-file=./myTemplate.txt
   ```
 * Describe secret (metadata only, values are hidden):
 
   ```bash
+  kubectl describe secrets <secret_name …>
   kubectl describe secret mysecret
+  kubectl describe secrets mysecret1 mysecret2
   ```
 * View decoded value:
 
@@ -370,10 +439,153 @@ kubectl edit secret <secret-name>
 kubectl delete secret <secret-name>
 ```
 
+### Important Behavior
 
-### References:
-- https://www.tutorialspoint.com/kubernetes/kubernetes_monitoring.htm
-- https://muditmathur121.medium.com/mastering-configmaps-and-secrets-in-kubernetes-16df7ad514f6
-- https://medium.com/@ravipatel.it/introduction-kubernetes-configmaps-and-secrets-with-example-a2987076065e
-- https://www.geeksforgeeks.org/devops/kubernetes-working-with-secrets/
-- https://www.geeksforgeeks.org/devops/kubernetes-secrets/
+When a container uses a Secret as an environment variable, updates to the Secret will not automatically appear in the running container.
+
+You must restart the Pod for the new Secret values to take effect.
+
+There are third-party tools (e.g., Reloader, External Secrets Operator) that can automatically restart pods when a Secret changes.
+
+
+* Example A – Single Secret Key as Environment Variable
+```bash
+kubectl create secret generic backend-user --from-literal=backend-username='backend-admin'
+```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-single-secret
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    env:
+    - name: SECRET_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: backend-user
+          key: backend-username
+```
+```bash
+kubectl apply -f pod-single-secret-env-variable.yaml
+kubectl exec -it env-single-secret -- /bin/sh -c 'echo $SECRET_USERNAME'
+```
+
+* Example B – Multiple Secrets as Environment Variables
+```bash
+kubectl create secret generic backend-user --from-literal=backend-username='backend-admin'
+kubectl create secret generic db-user --from-literal=db-username='db-admin'
+```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envvars-multiple-secrets
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    env:
+    - name: BACKEND_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: backend-user
+          key: backend-username
+    - name: DB_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: db-user
+          key: db-username
+```
+```bash
+kubectl apply -f pod-multiple-secret-env-variable.yaml
+kubectl exec -it envvars-multiple-secrets -- /bin/sh -c 'env | grep _USERNAME'
+```
+
+* Example C – All Secret Keys as Environment Variables (envFrom)
+```bash
+kubectl create secret generic test-secret \
+  --from-literal=username='my-app' \
+  --from-literal=password='39528$vdg7Jb'
+```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: envfrom-secret
+spec:
+  containers:
+  - name: envars-test-container
+    image: nginx
+    envFrom: #Use envFrom to load all keys:
+    - secretRef:
+        name: test-secret
+```
+```bash
+kubectl apply -f pod-secret-envFrom.yaml
+kubectl exec -it envfrom-secret -- /bin/sh -c 'echo "username: $username\npassword: $password\n"'
+```
+
+
+### Handling Special Characters
+If your password includes characters like `$, *, =, or !,` you must escape or quote them properly so your shell doesn’t interpret them.
+
+Example (correct way):
+
+```bash
+kubectl create secret generic dev-db-secret \
+  --from-literal=username=devuser \
+  --from-literal=password='S!B\*d$zDsb='
+```
+Tip: If your password is stored in a file, `--from-file` automatically handles special characters (no escaping needed).
+
+### Create Pod YAML
+* This YAML defines two Pods:
+  * One for production (prod-db-client-pod)
+  * One for testing (test-db-client-pod)
+* Each Pod mounts its respective Secret as a volume at /etc/secret-volume.
+```yaml
+apiVersion: v1
+kind: List
+items:
+- kind: Pod
+  apiVersion: v1
+  metadata:
+    name: prod-db-client-pod
+    labels:
+      name: prod-db-client
+  spec:
+    volumes:
+    - name: secret-volume
+      secret:
+        secretName: prod-db-secret
+    containers:
+    - name: db-client-container
+      image: myClientImage
+      volumeMounts:
+      - name: secret-volume
+        readOnly: true
+        mountPath: "/etc/secret-volume"
+
+- kind: Pod
+  apiVersion: v1
+  metadata:
+    name: test-db-client-pod
+    labels:
+      name: test-db-client
+  spec:
+    volumes:
+    - name: secret-volume
+      secret:
+        secretName: test-db-secret
+    containers:
+    - name: db-client-container
+      image: myClientImage
+      volumeMounts:
+      - name: secret-volume
+        readOnly: true
+        mountPath: "/etc/secret-volume"
+```
+

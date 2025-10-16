@@ -4,9 +4,7 @@ A **Deployment Strategy** defines **how Pods are replaced** when the Deployment 
 
 There are **two strategies**:
 
----
-
-## 🔄 1. RollingUpdate (Default)
+#### RollingUpdate (Default)
 
 * **Default strategy** if not specified.
 * Updates Pods **gradually**:
@@ -34,7 +32,6 @@ spec:
 👉 Use when: **You want zero downtime deployments.**
 Common for web apps, APIs, services that must remain available.
 
----
 
 ## 🔄 2. Recreate
 

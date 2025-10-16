@@ -1,4 +1,4 @@
-```
+```bash
 kubectl get sa
 kubectl describe sa <name>
 kubectl delete sa <name>
