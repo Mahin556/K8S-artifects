@@ -7,6 +7,9 @@
 - https://kubernetes.io/docs/tasks/inject-data-application/distribute-credentials-secure/#define-container-environment-variables-using-secret-data
 - https://www.warp.dev/terminus/kubectl-get-secrets
 - https://blog.gitguardian.com/how-to-handle-secrets-in-kubernetes/
+- https://phoenixnap.com/kb/kubernetes-secrets
+- https://kubernetes.io/docs/reference/kubectl/generated/kubectl_create/kubectl_create_secret_docker-registry/
+- https://kubernetes.io/docs/concepts/configuration/secret/
 
 ---
 
@@ -38,6 +41,17 @@
   * The kubelet periodically retries fetching it.
   * The Pod will not start until the Secret becomes available.
   * The kubelet logs and reports an event describing the issue (e.g., missing Secret or API connectivity problems).
+
+---
+
+### Categories of Kubernetes Secrets
+* Kubernetes supports two main categories of secrets:
+  * Built-in Secrets (automatically created by Kubernetes)
+    * Used internally by the system, e.g., service account tokens.
+    * Automatically mounted into pods if the default behavior isn’t disabled.
+  * User-Created Secrets (custom secrets)
+    * Created manually to store your own credentials, tokens, etc.
+    * Useful for accessing databases, Docker registries, external APIs, and other services.
 
 ---
 
@@ -589,3 +603,33 @@ items:
         mountPath: "/etc/secret-volume"
 ```
 
+
+```bash
+docker login
+
+cat ~/.docker/config.json
+
+kubectl create secret generic [secret] \
+--from-file=.dockerconfigjson=./.docker/config.json \
+--type=kubernetes.io/dockerconfigjson
+
+#or 
+
+kubectl create secret docker-registry regcred \
+--docker-server=https://index.docker.io/v1/ \
+--docker-username=myuser \
+--docker-password=mypass \
+--docker-email=myemail@example.com
+```
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-pod
+spec:
+  containers:
+  - name: private-container
+    image: myprivateregistry/myimage:latest
+  imagePullSecrets:
+  - name: regcred
+```
