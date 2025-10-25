@@ -1,1 +1,0 @@
-- https://devopscube.com/sealed-secrets-kubernetes/

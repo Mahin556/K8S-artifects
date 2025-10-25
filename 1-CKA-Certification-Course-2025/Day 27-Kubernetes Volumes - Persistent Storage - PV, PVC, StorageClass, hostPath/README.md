@@ -585,7 +585,7 @@ Reclaim policies define what happens to a **PersistentVolume (PV)** when its bou
 | **Retain** | Keeps PV and storage, requiring manual cleanup. | Backup, auditing, manual data recovery. | On-prem storage, long-term retention workloads. |
 | **Recycle (Deprecated)** | Cleans volume and makes PV available again. | (Not recommended) | Previously used in legacy systems. |
 
-![](/1-CKA-Certification-Course-2025/images/image.png)
+![](/1-CKA-Certification-Course-2025/images/image1131312.png)
 ![](/1-CKA-Certification-Course-2025/images/image1.png)
 
 ---

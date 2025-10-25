@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: flask-app-config
-data:  
-    DB_HOST: "localhost"
-    DB_NAME: flask_crud
